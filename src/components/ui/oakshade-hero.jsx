@@ -40,8 +40,8 @@ export function OakshadeHero() {
             <video
               className="absolute inset-0 h-full w-full object-cover object-center"
               style={featherStyle}
-              src="/oakshade-hero.mp4"
-              poster="/oakshade-hero-poster.jpg"
+              src="/media/oakshade-hero.mp4"
+              poster="/media/oakshade-hero-poster.jpg"
               autoPlay
               loop
               muted

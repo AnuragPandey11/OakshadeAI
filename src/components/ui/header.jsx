@@ -15,7 +15,7 @@ const tabs = [
 ];
 
 function Logo({ className = "h-14" }) {
-  return <img src="/logo.png" alt="Oakshade" className={`${className} w-auto`} />;
+  return <img src="/media/logo.png" alt="Oakshade" className={`${className} w-auto`} />;
 }
 
 export default function Header() {
