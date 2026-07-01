@@ -87,7 +87,7 @@ export default function ContactSection() {
     }
   };
 
-  const { hero, infoCards, form, mapSection, socialsCard } = contactData;
+  const { hero, infoCards, form, socialsCard } = contactData;
 
   return (
     <section id="contact" className="scroll-mt-24 bg-white text-neutral-800">
@@ -378,32 +378,13 @@ export default function ContactSection() {
               custom={1}
               className="lg:col-span-5 space-y-8"
             >
-              {/* Map Placeholder */}
-              <div className="relative aspect-[4/3] rounded-2xl overflow-hidden bg-neutral-100 border border-neutral-200">
+              {/* Brand logo — occupies the same space the map card did */}
+              <div className="relative aspect-[4/3] rounded-2xl overflow-hidden bg-neutral-100 border border-neutral-200 flex items-center justify-center p-3">
                 <img
-                  src={mapSection.image}
-                  alt={mapSection.imageAlt}
-                  className="absolute inset-0 h-full w-full object-cover opacity-90"
+                  src="/media/oakshade-logo.png"
+                  alt={brandConfig.name}
+                  className="h-full w-full object-contain scale-110"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
-                <div className="absolute bottom-4 left-4 right-4 flex items-end justify-between">
-                  <div>
-                    <p className="text-white font-bold tracking-tight text-lg">
-                      {mapSection.locationName}
-                    </p>
-                    <p className="text-white/60 text-xs">
-                      {mapSection.locationSubtext}
-                    </p>
-                  </div>
-                  <a
-                    href={mapSection.directionsUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-xs font-bold uppercase tracking-wider bg-white/20 backdrop-blur-sm text-white px-4 py-2 rounded-lg hover:bg-white/30 transition-colors"
-                  >
-                    {mapSection.directionsLabel}
-                  </a>
-                </div>
               </div>
 
               {/* Socials Card */}
