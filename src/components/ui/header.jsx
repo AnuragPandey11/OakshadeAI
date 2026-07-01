@@ -65,7 +65,12 @@ export default function Header() {
   const active = routeActive ?? scrollActive;
 
   // Scroll to a home section — navigating home first if we're on another page.
+  // "Our Work" is an exception: it routes to the dedicated /work page instead.
   const goToSection = (id) => {
+    if (id === "work") {
+      navigate("/work");
+      return;
+    }
     if (pathname !== "/") {
       navigate("/", { state: { scrollTo: id } });
       return;
