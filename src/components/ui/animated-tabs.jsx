@@ -10,12 +10,12 @@ export function AnimatedTabs({ tabs = [], defaultTab, className }) {
 
   return (
     <div className={cn("flex w-full flex-col gap-y-3", className)}>
-      <div className="flex flex-wrap gap-2 self-center rounded-xl bg-[#11111198] bg-opacity-50 p-1 backdrop-blur-sm">
+      <div className="flex max-w-full flex-nowrap gap-2 self-center overflow-x-auto rounded-xl bg-[#11111198] bg-opacity-50 p-1 backdrop-blur-sm [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:flex-wrap sm:overflow-visible">
         {tabs.map((tab) => (
           <button
             key={tab.id}
             onClick={() => setActiveTab(tab.id)}
-            className="relative rounded-lg px-4 py-2 text-sm font-medium text-white outline-none transition-colors"
+            className="relative shrink-0 whitespace-nowrap rounded-lg px-4 py-2 text-sm font-medium text-white outline-none transition-colors"
           >
             {activeTab === tab.id && (
               <motion.div
