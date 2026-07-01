@@ -21,6 +21,7 @@ export default function OurServices() {
           {services.map((s) => (
             <CardFlip
               key={s.slug}
+              slug={s.slug}
               title={s.title}
               subtitle={s.subtitle}
               description={s.description}

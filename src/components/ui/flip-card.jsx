@@ -2,8 +2,10 @@
 import { cn } from "../../lib/utils";
 import { ArrowRight, Code2, Copy, Rocket, Zap } from "lucide-react";
 import { useState } from "react";
+import { Link } from "react-router-dom";
 
 export default function CardFlip({
+  slug, // service slug — links the "Read More" action to /services/<slug>
   title = "Build MVPs Fast",
   subtitle = "Launch your idea in record time",
   description = "Copy, paste, customize—and launch your MVP faster than ever with our developer-first component library.",
@@ -184,7 +186,8 @@ export default function CardFlip({
           </div>
 
           <div className="relative z-10 mt-auto border-t border-slate-200 pt-4">
-            <div
+            <Link
+              to={slug ? `/services/${slug}` : "/services"}
               className={cn(
                 "group/start relative",
                 "flex items-center justify-between",
@@ -197,7 +200,7 @@ export default function CardFlip({
               )}
             >
               <span className="group-hover/start:text-primary text-sm font-semibold text-zinc-900 transition-colors duration-300">
-                Start Building
+                Read More
               </span>
               <div className="group/icon relative">
                 <div
@@ -209,7 +212,7 @@ export default function CardFlip({
                 />
                 <ArrowRight className="text-primary relative z-10 h-4 w-4 transition-all duration-300 group-hover/start:translate-x-1 group-hover/start:scale-110" />
               </div>
-            </div>
+            </Link>
           </div>
         </div>
       </div>
