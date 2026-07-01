@@ -34,14 +34,14 @@ export default function AllWork() {
       </section>
 
       {/* Filter */}
-      <section className="px-6 pt-12">
-        <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-center gap-2">
+      <section className="pt-12">
+        <div className="mx-auto flex max-w-6xl flex-nowrap items-center gap-2 overflow-x-auto px-6 pb-2 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:flex-wrap sm:justify-center sm:overflow-visible sm:pb-0">
           {projectCategories.map((cat) => (
             <button
               key={cat}
               type="button"
               onClick={() => setCategory(cat)}
-              className={`rounded-full px-5 py-2 text-sm font-medium transition-colors ${
+              className={`shrink-0 whitespace-nowrap rounded-full px-5 py-2 text-sm font-medium transition-colors ${
                 category === cat
                   ? "bg-neutral-900 text-white"
                   : "border border-neutral-200 bg-white text-neutral-600 hover:border-neutral-400 hover:text-neutral-900"
