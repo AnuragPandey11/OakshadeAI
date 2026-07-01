@@ -1,53 +1,31 @@
 // src/components/ui/our-process.jsx
 import { ProductHighlightCard } from "./product-card";
+import Carousel from "./carousel";
 import { Search, PenTool, Code2, CheckCircle2, Rocket, LifeBuoy } from "lucide-react";
+import { processSteps } from "../../utils/processData";
 
-// NOTE: `image` points at /public assets. Drop your own image/GIF in /public
-// and swap the path (e.g. "/process-discover.gif") to use it inside a card.
-const steps = [
-  {
-    category: "Step 01",
-    icon: <Search className="h-5 w-5" />,
-    title: "Lorem ipsum",
-    description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor.",
-    image: "/media/logo.png",
-  },
-  {
-    category: "Step 02",
-    icon: <PenTool className="h-5 w-5" />,
-    title: "Dolor sit",
-    description: "Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip.",
-    image: "/media/logo.png",
-  },
-  {
-    category: "Step 03",
-    icon: <Code2 className="h-5 w-5" />,
-    title: "Consectetur",
-    description: "Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu.",
-    image: "/media/logo.png",
-  },
-  {
-    category: "Step 04",
-    icon: <CheckCircle2 className="h-5 w-5" />,
-    title: "Adipiscing",
-    description: "Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt.",
-    image: "/media/logo.png",
-  },
-  {
-    category: "Step 05",
-    icon: <Rocket className="h-5 w-5" />,
-    title: "Sed eiusmod",
-    description: "Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium dolor.",
-    image: "/media/logo.png",
-  },
-  {
-    category: "Step 06",
-    icon: <LifeBuoy className="h-5 w-5" />,
-    title: "Tempor",
-    description: "Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit sed.",
-    image: "/media/logo.png",
-  },
-];
+// lucide icon per step, keyed by the step's `iconName` in processData.
+const iconMap = { Search, PenTool, Code2, CheckCircle2, Rocket, LifeBuoy };
+
+// The home cards use the brand mark as their decorative corner image; the
+// per-step photos in processData are used by the FeatureCarousel on the
+// service pages.
+const CARD_IMAGE = "/media/logo.png";
+
+function ProcessCard(s) {
+  const Icon = iconMap[s.iconName] ?? Search;
+  return (
+    <ProductHighlightCard
+      key={s.id}
+      category={s.name}
+      categoryIcon={<Icon className="h-5 w-5" />}
+      title={s.title}
+      description={s.description}
+      imageSrc={CARD_IMAGE}
+      imageAlt={s.title}
+    />
+  );
+}
 
 export default function OurProcess() {
   return (
@@ -60,18 +38,14 @@ export default function OurProcess() {
           Lorem ipsum dolor sit amet
         </h2>
 
-        <div className="grid justify-items-center gap-8 sm:grid-cols-2 lg:grid-cols-3">
-          {steps.map((s) => (
-            <ProductHighlightCard
-              key={s.category}
-              category={s.category}
-              categoryIcon={s.icon}
-              title={s.title}
-              description={s.description}
-              imageSrc={s.image}
-              imageAlt={s.title}
-            />
-          ))}
+        {/* Tablet / desktop: static grid (unchanged) */}
+        <div className="hidden justify-items-center gap-8 sm:grid sm:grid-cols-2 lg:grid-cols-3">
+          {processSteps.map(ProcessCard)}
+        </div>
+
+        {/* Mobile: swipeable slider */}
+        <div className="sm:hidden">
+          <Carousel itemClassName="w-[85%]">{processSteps.map(ProcessCard)}</Carousel>
         </div>
       </div>
     </section>
