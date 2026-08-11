@@ -8,18 +8,32 @@ export function AnimatedTabs({ tabs = [], defaultTab, className }) {
   const scrollRef = useRef(null);
   const tabRefs = useRef({});
 
+  /* Centre a tab inside its own horizontal strip WITHOUT touching the page
+     scroll. `scrollIntoView` walks every scrollable ancestor including the
+     document, so on mount it yanked the visitor down to this section — the
+     page opened at "Our Work" instead of the hero. Scrolling the track
+     directly keeps the effect local to the tab strip. */
+  const centerTab = (id, behavior = "smooth") => {
+    const track = scrollRef.current;
+    const el = tabRefs.current[id];
+    if (!track || !el) return;
+    const trackBox = track.getBoundingClientRect();
+    const elBox = el.getBoundingClientRect();
+    const left =
+      track.scrollLeft +
+      (elBox.left - trackBox.left) -
+      (trackBox.width - elBox.width) / 2;
+    track.scrollTo({ left: Math.max(0, left), behavior });
+  };
+
   const selectTab = (id) => {
     setActiveTab(id);
-    tabRefs.current[id]?.scrollIntoView({
-      behavior: "smooth",
-      inline: "center",
-      block: "nearest",
-    });
+    centerTab(id);
   };
 
   // Keep the active tab in view on mount / when tabs change.
   useEffect(() => {
-    tabRefs.current[activeTab]?.scrollIntoView({ inline: "center", block: "nearest" });
+    centerTab(activeTab, "auto");
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [tabs]);
 

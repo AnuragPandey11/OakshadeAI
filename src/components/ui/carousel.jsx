@@ -15,13 +15,20 @@ export default function Carousel({ children, itemClassName = "" }) {
   const itemRefs = useRef([]);
   const [active, setActive] = useState(0);
 
+  /* Scroll the track itself rather than calling scrollIntoView on the slide —
+     scrollIntoView also scrolls every scrollable ancestor (including the
+     page), so tapping an arrow or a dot could jog the whole page vertically. */
   const scrollToIndex = (i) => {
-    const clamped = Math.max(0, Math.min(slides.length - 1, i));
-    itemRefs.current[clamped]?.scrollIntoView({
-      behavior: "smooth",
-      inline: "center",
-      block: "nearest",
-    });
+    const track = trackRef.current;
+    const el = itemRefs.current[Math.max(0, Math.min(slides.length - 1, i))];
+    if (!track || !el) return;
+    const trackBox = track.getBoundingClientRect();
+    const elBox = el.getBoundingClientRect();
+    const left =
+      track.scrollLeft +
+      (elBox.left - trackBox.left) -
+      (trackBox.width - elBox.width) / 2;
+    track.scrollTo({ left: Math.max(0, left), behavior: "smooth" });
   };
 
   // Track which slide is most in view (drives the active dot).
