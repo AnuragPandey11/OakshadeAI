@@ -13,9 +13,9 @@ export const processSteps = [
     id: "1",
     name: "Step 01",
     iconName: "Search",
-    title: "Lorem ipsum",
+    title: "Discover",
     description:
-      "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor.",
+      "We start with your goals, users, and constraints — then agree on what success actually looks like.",
     image:
       "https://images.unsplash.com/photo-1497366754035-f200968a6e72?q=80&w=1600&auto=format&fit=crop",
   },
@@ -23,9 +23,9 @@ export const processSteps = [
     id: "2",
     name: "Step 02",
     iconName: "PenTool",
-    title: "Dolor sit",
+    title: "Design",
     description:
-      "Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip.",
+      "Wireframes to polished UI, so you can see and react to the product long before a line of code is written.",
     image:
       "https://images.unsplash.com/photo-1561070791-2526d30994b5?q=80&w=1600&auto=format&fit=crop",
   },
@@ -33,9 +33,9 @@ export const processSteps = [
     id: "3",
     name: "Step 03",
     iconName: "Code2",
-    title: "Consectetur",
+    title: "Build",
     description:
-      "Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu.",
+      "Development in short, visible cycles on a modern stack — you see working software every week, not just status updates.",
     image:
       "https://images.unsplash.com/photo-1467232004584-a241de8bcf5d?q=80&w=1600&auto=format&fit=crop",
   },
@@ -43,9 +43,9 @@ export const processSteps = [
     id: "4",
     name: "Step 04",
     iconName: "CheckCircle2",
-    title: "Adipiscing",
+    title: "Test",
     description:
-      "Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt.",
+      "Real-device testing, performance and accessibility checks, and your own review round before anything goes near production.",
     image:
       "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?q=80&w=1600&auto=format&fit=crop",
   },
@@ -53,9 +53,9 @@ export const processSteps = [
     id: "5",
     name: "Step 05",
     iconName: "Rocket",
-    title: "Sed eiusmod",
+    title: "Launch",
     description:
-      "Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium dolor.",
+      "Deployment, domains, analytics, and app store submission handled end to end — a launch day without surprises.",
     image:
       "https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=1600&auto=format&fit=crop",
   },
@@ -63,9 +63,9 @@ export const processSteps = [
     id: "6",
     name: "Step 06",
     iconName: "LifeBuoy",
-    title: "Tempor",
+    title: "Support",
     description:
-      "Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit sed.",
+      "We stay on after launch: monitoring, fixes, and a roadmap for the next set of improvements.",
     image:
       "https://images.unsplash.com/photo-1524661135-423995f22d0b?q=80&w=1600&auto=format&fit=crop",
   },

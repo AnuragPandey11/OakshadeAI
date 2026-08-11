@@ -2,11 +2,13 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { MapPin, Phone, Mail, Clock, Send, CheckCircle } from "lucide-react";
-import { FaWhatsapp, FaInstagram, FaFacebookF } from "react-icons/fa";
+// Socials + WhatsApp are not rendered for now — re-add this import when the
+// socials card / WhatsApp info card below are switched back on.
+// import { FaWhatsapp, FaInstagram, FaFacebookF } from "react-icons/fa";
 import { contactData } from "../../utils/contactData";
 import { brandConfig } from "../../utils/brandConfig";
 
-const iconMap = { MapPin, Phone, Mail, Clock, FaWhatsapp };
+const iconMap = { MapPin, Phone, Mail, Clock };
 
 const fadeUp = {
   hidden: { opacity: 0, y: 30 },
@@ -17,21 +19,96 @@ const fadeUp = {
   }),
 };
 
-// ── Validation helpers ────────────────────────────────────────────────────
-const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-const PHONE_RE = /^[\d\s\-()+]{7,20}$/;
+// ── Validation ────────────────────────────────────────────────────────────
+// Every rule lives on the field in contactData.form.fields — this function
+// just applies them in order and returns the first failing message ("" = ok).
+const FIELD_ORDER = ["name", "email", "phone", "message"];
 
-function validateForm({ name, email, phone, message }) {
+function validateField(key, rawValue, fields) {
+  const rules = fields[key];
+  const value = rawValue.trim();
+  const msg = rules.errors ?? {};
+
+  if (!value) return rules.required ? msg.required ?? "This field is required." : "";
+  if (rules.minLength && value.length < rules.minLength) return msg.minLength ?? "";
+  if (rules.maxLength && value.length > rules.maxLength) return msg.maxLength ?? "";
+  if (rules.pattern && !rules.pattern.test(value)) return msg.invalid ?? "";
+
+  // Phone: the pattern only allows the right characters — count digits too.
+  if (rules.minDigits || rules.maxDigits) {
+    const digits = value.replace(/\D/g, "").length;
+    if (digits < (rules.minDigits ?? 0) || digits > (rules.maxDigits ?? Infinity))
+      return msg.digits ?? "";
+  }
+  return "";
+}
+
+function validateAll(values, fields) {
   const errs = {};
-  if (!name.trim() || name.trim().length < 2)
-    errs.name = "Please enter your full name (at least 2 characters).";
-  if (!email.trim() || !EMAIL_RE.test(email.trim()))
-    errs.email = "Please enter a valid email address.";
-  if (phone.trim() && !PHONE_RE.test(phone.trim()))
-    errs.phone = "Phone number looks invalid — please check it.";
-  if (!message.trim() || message.trim().length < 10)
-    errs.message = "Please write a message (at least 10 characters).";
+  FIELD_ORDER.forEach((key) => {
+    const error = validateField(key, values[key], fields);
+    if (error) errs[key] = error;
+  });
   return errs;
+}
+
+// ── Shared field renderer ─────────────────────────────────────────────────
+// One component for every input so validation, error styling and the a11y
+// wiring (aria-invalid / aria-describedby) stay identical across fields.
+function Field({ id, config, value, error, onChange, onBlur, textarea = false }) {
+  const base =
+    "w-full px-5 py-4 border rounded-xl bg-white text-sm focus:outline-none focus:ring-2 transition-all placeholder:text-neutral-300";
+  const state = error
+    ? "border-red-400 focus:ring-red-200 focus:border-red-400"
+    : "border-neutral-200 focus:ring-neutral-900/20 focus:border-neutral-900";
+
+  const shared = {
+    id,
+    name: id,
+    value,
+    onChange,
+    onBlur,
+    maxLength: config.maxLength,
+    placeholder: config.placeholder,
+    required: config.required,
+    "aria-invalid": error ? "true" : "false",
+    "aria-describedby": error ? `${id}-error` : undefined,
+    className: `${base} ${state}${textarea ? " resize-none" : ""}`,
+  };
+
+  // A live character count, shown once the user is within 100 of the limit.
+  const nearLimit =
+    config.maxLength && value.length > config.maxLength - 100 ? true : false;
+
+  return (
+    <div>
+      <div className="flex items-baseline justify-between">
+        <label
+          htmlFor={id}
+          className="block text-[11px] uppercase tracking-wider font-bold text-neutral-400 mb-2"
+        >
+          {config.label}
+        </label>
+        {nearLimit && (
+          <span
+            className={`text-[11px] tabular-nums ${
+              value.length >= config.maxLength ? "text-red-500" : "text-neutral-400"
+            }`}
+          >
+            {value.length}/{config.maxLength}
+          </span>
+        )}
+      </div>
+
+      {textarea ? <textarea rows={5} {...shared} /> : <input type={config.inputType ?? "text"} {...shared} />}
+
+      {error && (
+        <p id={`${id}-error`} role="alert" className="mt-1.5 text-xs text-red-500">
+          {error}
+        </p>
+      )}
+    </div>
+  );
 }
 
 export default function ContactSection() {
@@ -41,53 +118,95 @@ export default function ContactSection() {
     phone: "",
     message: "",
   });
+  // A field only shows its error once it has been blurred or submit was tried.
+  const [touched, setTouched] = useState({});
   const [fieldErrors, setFieldErrors] = useState({});
   const [serverError, setServerError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
 
+  const { hero, infoCards, form, socialsCard } = contactData;
+  const fields = form.fields;
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormState((s) => ({ ...s, [name]: value }));
-    // Clear the field error as the user corrects their input
-    if (fieldErrors[name]) {
-      setFieldErrors((prev) => {
-        const next = { ...prev };
-        delete next[name];
-        return next;
-      });
+    // Re-validate live only after the field has been touched, so we correct
+    // errors as the user types without nagging them mid-first-attempt.
+    if (touched[name]) {
+      setFieldErrors((prev) => ({
+        ...prev,
+        [name]: validateField(name, value, fields),
+      }));
     }
+  };
+
+  const handleBlur = (e) => {
+    const { name, value } = e.target;
+    setTouched((t) => ({ ...t, [name]: true }));
+    setFieldErrors((prev) => ({
+      ...prev,
+      [name]: validateField(name, value, fields),
+    }));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setServerError("");
 
-    // Client-side gate
-    const errs = validateForm(formState);
+    // Client-side gate — validate everything, reveal every error at once.
+    const errs = validateAll(formState, fields);
+    setTouched(Object.fromEntries(FIELD_ORDER.map((k) => [k, true])));
+    setFieldErrors(errs);
+
     if (Object.keys(errs).length > 0) {
-      setFieldErrors(errs);
+      // Send focus to the first field that failed so keyboard and screen
+      // reader users land on the problem rather than hunting for it.
+      document.getElementById(FIELD_ORDER.find((k) => errs[k]))?.focus();
       return;
     }
-    setFieldErrors({});
+    // The site has no backend, so we hand the message to the visitor's own
+    // email client with everything pre-filled. They press send there.
     setIsSubmitting(true);
-
     try {
-      // TODO: wire this up to your backend / email service (e.g. Formspree,
-      // Resend, an API route, etc.). For now we simulate a successful send.
-      await new Promise((resolve) => setTimeout(resolve, 900));
+      openMailClient(formState);
       setIsSubmitted(true);
-      setFormState({ name: "", email: "", phone: "", message: "" });
+      // The values are kept (not cleared) so the mailto can be re-opened if
+      // the email app didn't launch — see the fallback in the success panel.
+      setTouched({});
+      setFieldErrors({});
     } catch {
-      setServerError(
-        "Unable to send your message right now. Please check your connection and try again."
-      );
+      setServerError(form.networkError);
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  const { hero, infoCards, form, socialsCard } = contactData;
+  // Builds the mailto: URL and navigates to it, which hands off to whatever
+  // email app the device has registered (Mail, Outlook, Gmail, …).
+  function openMailClient(values) {
+    const subject = form.mailSubject.replace("{name}", values.name.trim());
+    const body = [
+      `Name: ${values.name.trim()}`,
+      `Email: ${values.email.trim()}`,
+      values.phone.trim() ? `Phone: ${values.phone.trim()}` : null,
+      "",
+      values.message.trim(),
+      "",
+      "— Sent from the Oakshade AI website contact form",
+    ]
+      .filter((line) => line !== null)
+      .join("\r\n");
+
+    window.location.href =
+      `mailto:${brandConfig.email}` +
+      `?subject=${encodeURIComponent(subject)}` +
+      `&body=${encodeURIComponent(body)}`;
+  }
+
+  // Only surface an error once its field has been touched.
+  const errorFor = (key) => (touched[key] ? fieldErrors[key] || "" : "");
+  const hasErrors = FIELD_ORDER.some((k) => errorFor(k));
 
   return (
     <section id="contact" className="scroll-mt-24 bg-white text-neutral-800">
@@ -144,7 +263,13 @@ export default function ContactSection() {
       {/* ── Info Cards ───────────────────────────────────────────────────── */}
       <div className="py-16 md:py-20 bg-neutral-100">
         <div className="container mx-auto px-6 lg:px-16 max-w-7xl">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 md:gap-6">
+          <div
+            className={`grid gap-5 md:gap-6 ${
+              infoCards.length === 1
+                ? "grid-cols-1 mx-auto max-w-md"
+                : "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3"
+            }`}
+          >
             {infoCards.map((card, i) => {
               const Icon = iconMap[card.iconName];
               const isLink = !!card.href;
@@ -220,8 +345,38 @@ export default function ContactSection() {
                     {form.successHeading}
                   </h3>
                   <p className="text-neutral-500">{form.successMessage}</p>
+
+                  {/* Fallback: mailto: does nothing on devices with no mail
+                      app configured, and that failure is silent — so always
+                      offer a retry and the plain address. */}
+                  <div className="pt-2 space-y-3 border-t border-neutral-200 mt-6">
+                    <p className="text-sm text-neutral-500 pt-4">
+                      {form.successFallback}
+                    </p>
+                    <div className="flex flex-wrap items-center justify-center gap-3">
+                      <button
+                        type="button"
+                        onClick={() => openMailClient(formState)}
+                        className="inline-flex items-center gap-2 rounded-xl bg-neutral-900 px-5 py-3 text-sm font-medium text-white hover:bg-neutral-700 transition-colors cursor-pointer"
+                      >
+                        <Send size={14} />
+                        {form.successFallbackLabel}
+                      </button>
+                      <a
+                        href={`mailto:${brandConfig.email}`}
+                        className="inline-flex items-center gap-2 rounded-xl bg-white border border-neutral-200 px-5 py-3 text-sm font-medium text-neutral-600 hover:border-neutral-900 hover:text-neutral-900 transition-colors"
+                      >
+                        <Mail size={16} />
+                        {brandConfig.email}
+                      </a>
+                    </div>
+                  </div>
+
                   <button
-                    onClick={() => setIsSubmitted(false)}
+                    onClick={() => {
+                      setIsSubmitted(false);
+                      setFormState({ name: "", email: "", phone: "", message: "" });
+                    }}
                     className="text-sm text-neutral-900 underline underline-offset-4 hover:text-neutral-600 cursor-pointer"
                   >
                     {form.successRetry}
@@ -237,119 +392,51 @@ export default function ContactSection() {
                     </div>
                   )}
 
+                  {/* Validation summary — mirrors the per-field errors */}
+                  {hasErrors && (
+                    <div className="flex items-start gap-3 bg-red-50 border border-red-200 text-red-700 rounded-xl px-5 py-4 text-sm">
+                      <span className="mt-0.5 shrink-0">⚠</span>
+                      <p>{form.invalidSummary}</p>
+                    </div>
+                  )}
+
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-                    {/* Name */}
-                    <div>
-                      <label
-                        htmlFor="name"
-                        className="block text-[11px] uppercase tracking-wider font-bold text-neutral-400 mb-2"
-                      >
-                        {form.fields.name.label}
-                      </label>
-                      <input
-                        id="name"
-                        name="name"
-                        type="text"
-                        value={formState.name}
-                        onChange={handleChange}
-                        className={`w-full px-5 py-4 border rounded-xl bg-white text-sm focus:outline-none focus:ring-2 transition-all placeholder:text-neutral-300 ${
-                          fieldErrors.name
-                            ? "border-red-400 focus:ring-red-200 focus:border-red-400"
-                            : "border-neutral-200 focus:ring-neutral-900/20 focus:border-neutral-900"
-                        }`}
-                        placeholder={form.fields.name.placeholder}
-                      />
-                      {fieldErrors.name && (
-                        <p className="mt-1.5 text-xs text-red-500">
-                          {fieldErrors.name}
-                        </p>
-                      )}
-                    </div>
-
-                    {/* Email */}
-                    <div>
-                      <label
-                        htmlFor="email"
-                        className="block text-[11px] uppercase tracking-wider font-bold text-neutral-400 mb-2"
-                      >
-                        {form.fields.email.label}
-                      </label>
-                      <input
-                        id="email"
-                        name="email"
-                        type="email"
-                        value={formState.email}
-                        onChange={handleChange}
-                        className={`w-full px-5 py-4 border rounded-xl bg-white text-sm focus:outline-none focus:ring-2 transition-all placeholder:text-neutral-300 ${
-                          fieldErrors.email
-                            ? "border-red-400 focus:ring-red-200 focus:border-red-400"
-                            : "border-neutral-200 focus:ring-neutral-900/20 focus:border-neutral-900"
-                        }`}
-                        placeholder={form.fields.email.placeholder}
-                      />
-                      {fieldErrors.email && (
-                        <p className="mt-1.5 text-xs text-red-500">
-                          {fieldErrors.email}
-                        </p>
-                      )}
-                    </div>
-                  </div>
-
-                  {/* Phone */}
-                  <div>
-                    <label
-                      htmlFor="phone"
-                      className="block text-[11px] uppercase tracking-wider font-bold text-neutral-400 mb-2"
-                    >
-                      {form.fields.phone.label}
-                    </label>
-                    <input
-                      id="phone"
-                      name="phone"
-                      type="tel"
-                      value={formState.phone}
+                    <Field
+                      id="name"
+                      config={fields.name}
+                      value={formState.name}
+                      error={errorFor("name")}
                       onChange={handleChange}
-                      className={`w-full px-5 py-4 border rounded-xl bg-white text-sm focus:outline-none focus:ring-2 transition-all placeholder:text-neutral-300 ${
-                        fieldErrors.phone
-                          ? "border-red-400 focus:ring-red-200 focus:border-red-400"
-                          : "border-neutral-200 focus:ring-neutral-900/20 focus:border-neutral-900"
-                      }`}
-                      placeholder={form.fields.phone.placeholder}
+                      onBlur={handleBlur}
                     />
-                    {fieldErrors.phone && (
-                      <p className="mt-1.5 text-xs text-red-500">
-                        {fieldErrors.phone}
-                      </p>
-                    )}
+                    <Field
+                      id="email"
+                      config={fields.email}
+                      value={formState.email}
+                      error={errorFor("email")}
+                      onChange={handleChange}
+                      onBlur={handleBlur}
+                    />
                   </div>
 
-                  {/* Message */}
-                  <div>
-                    <label
-                      htmlFor="message"
-                      className="block text-[11px] uppercase tracking-wider font-bold text-neutral-400 mb-2"
-                    >
-                      {form.fields.message.label}
-                    </label>
-                    <textarea
-                      id="message"
-                      name="message"
-                      rows={5}
-                      value={formState.message}
-                      onChange={handleChange}
-                      className={`w-full px-5 py-4 border rounded-xl bg-white text-sm focus:outline-none focus:ring-2 transition-all resize-none placeholder:text-neutral-300 ${
-                        fieldErrors.message
-                          ? "border-red-400 focus:ring-red-200 focus:border-red-400"
-                          : "border-neutral-200 focus:ring-neutral-900/20 focus:border-neutral-900"
-                      }`}
-                      placeholder={form.fields.message.placeholder}
-                    />
-                    {fieldErrors.message && (
-                      <p className="mt-1.5 text-xs text-red-500">
-                        {fieldErrors.message}
-                      </p>
-                    )}
-                  </div>
+                  <Field
+                    id="phone"
+                    config={fields.phone}
+                    value={formState.phone}
+                    error={errorFor("phone")}
+                    onChange={handleChange}
+                    onBlur={handleBlur}
+                  />
+
+                  <Field
+                    id="message"
+                    config={fields.message}
+                    value={formState.message}
+                    error={errorFor("message")}
+                    onChange={handleChange}
+                    onBlur={handleBlur}
+                    textarea
+                  />
 
                   <button
                     type="submit"
@@ -387,7 +474,26 @@ export default function ContactSection() {
                 />
               </div>
 
-              {/* Socials Card */}
+              {/* Email card — the only contact channel we publish for now */}
+              <div className="bg-neutral-100 p-6 md:p-8 rounded-2xl border border-neutral-200">
+                <h3 className="font-bold tracking-tight text-lg text-neutral-900 mb-4">
+                  Prefer email?
+                </h3>
+                <p className="text-sm text-neutral-500 mb-6">
+                  Write to us directly and we'll get back to you within one business
+                  day.
+                </p>
+                <a
+                  href={`mailto:${brandConfig.email}`}
+                  className="inline-flex items-center gap-2 px-5 py-3 rounded-xl bg-white border border-neutral-200 text-sm font-medium text-neutral-600 hover:border-neutral-900 hover:text-neutral-900 transition-colors"
+                >
+                  <Mail size={18} />
+                  {brandConfig.email}
+                </a>
+              </div>
+
+              {/* Socials card — hidden until the accounts exist. Re-enable by
+                  uncommenting this block and the react-icons import above.
               <div className="bg-neutral-100 p-6 md:p-8 rounded-2xl border border-neutral-200">
                 <h3 className="font-bold tracking-tight text-lg text-neutral-900 mb-4">
                   {socialsCard.heading}
@@ -416,6 +522,7 @@ export default function ContactSection() {
                   </a>
                 </div>
               </div>
+              */}
             </motion.div>
           </div>
         </div>

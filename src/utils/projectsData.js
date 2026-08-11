@@ -9,7 +9,18 @@
 // Every entry also carries a `category`, which powers the single category
 // filter on the /work page. Add a project by dropping an entry into a group
 // (and add a new group object to create a new tab).
+//
+// Optional per-entry fields:
+//   • `status`  — small badge above the title, e.g. for work still in
+//                 development & testing. Omit it for shipped, live projects.
+//   • `meta`    — short line under the description (e.g. store availability).
+//
+// NOTE ON IMAGES: these are stock photos standing in for real screenshots.
+// Drop screenshots into `public/media/work/` and swap the `image` values for
+// e.g. "/media/work/oakshade-crm.jpg" when they're ready.
 // ─────────────────────────────────────────────────────────────────────────
+
+const DEV_STATUS = "In development & testing phase";
 
 export const projectGroups = [
   {
@@ -17,34 +28,47 @@ export const projectGroups = [
     label: "Featured",
     entries: [
       {
-        id: "aurora-fintech",
-        title: "Aurora — Fintech Dashboard",
-        category: "Web Development",
+        id: "platinum-township",
+        title: "Platinum Township",
+        category: "Real Estate",
         description:
-          "A real-time analytics dashboard for a fast-growing fintech, unifying millions of transactions into a single, elegant view.",
+          "An immersive virtual walkthrough of a residential township — 360° panoramic views and interactive scene exploration that let buyers tour the development before a brick is laid.",
+        image:
+          "https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?q=80&w=1600&auto=format&fit=crop",
+        link: "https://platinum-township.vercel.app/",
+        status: DEV_STATUS,
+      },
+      {
+        id: "oakshade-crm",
+        title: "Oakshade CRM",
+        category: "SaaS Platform",
+        description:
+          "Our own customer relationship platform — leads, pipelines, and client conversations in one place, built to keep growing teams organised without the enterprise bloat.",
         image:
           "https://images.unsplash.com/photo-1551288049-bebda4e38f71?q=80&w=1600&auto=format&fit=crop",
-        link: "#",
+        link: "https://crm.oakshade-ai.com/",
       },
       {
-        id: "nomad-travel",
-        title: "Nomad — Travel Companion App",
-        category: "Mobile Apps",
+        id: "the-jagirdars",
+        title: "The Jagirdars",
+        category: "Travel & Hospitality",
         description:
-          "A cross-platform travel app with offline maps and smart itineraries, launched to 4.8 stars across both app stores.",
+          "A holistic yatra ecosystem for a collection of heritage homestays in Uttarakhand — curated properties and yatra services presented as one unhurried, premium experience.",
         image:
-          "https://images.unsplash.com/photo-1488646953014-85cb44e25828?q=80&w=1600&auto=format&fit=crop",
-        link: "#",
+          "https://images.unsplash.com/photo-1626621341517-bbf3d9990a23?q=80&w=1600&auto=format&fit=crop",
+        link: "https://the-jagirdars.vercel.app/",
+        status: DEV_STATUS,
       },
       {
-        id: "helix-ai",
-        title: "Helix — AI Support Assistant",
-        category: "AI/ML",
+        id: "medhya-design-studio",
+        title: "Medhya Design Studio",
+        category: "Business Website",
         description:
-          "An LLM-powered assistant that deflects 60% of support tickets while keeping a human-in-the-loop for edge cases.",
+          "A portfolio site for a multidisciplinary architecture and interiors practice — residential, commercial, hospitality, and cultural work presented so the projects carry the page.",
         image:
-          "https://images.unsplash.com/photo-1677442136019-21780ecad995?q=80&w=1600&auto=format&fit=crop",
-        link: "#",
+          "https://images.unsplash.com/photo-1599696848652-f0ff23bc911f?q=80&w=1600&auto=format&fit=crop",
+        link: "https://medhya-design-studio-five.vercel.app/",
+        status: DEV_STATUS,
       },
     ],
   },
@@ -53,86 +77,84 @@ export const projectGroups = [
     label: "Web & Mobile",
     entries: [
       {
-        id: "meridian-store",
-        title: "Meridian — Headless Commerce",
-        category: "Web Development",
+        id: "complete-waterproofing",
+        title: "Complete Waterproofing Systems",
+        category: "Business Website",
         description:
-          "A blazing-fast headless storefront that cut page load times by 70% and lifted conversion by 22%.",
+          "A clear, credibility-first website for a waterproofing contractor — services, past projects, and enquiries structured so prospective clients can get in touch in a couple of taps.",
         image:
-          "https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?q=80&w=1600&auto=format&fit=crop",
-        link: "#",
+          "https://images.unsplash.com/photo-1503387762-592deb58ef4e?q=80&w=1600&auto=format&fit=crop",
+        link: "https://completewaterproofingsystems.in/",
       },
       {
-        id: "pulse-fitness",
-        title: "Pulse — Fitness Tracking App",
-        category: "Mobile Apps",
+        id: "sehatbuddy",
+        title: "SehatBuddy",
+        category: "Web & Mobile App",
         description:
-          "A wearables-integrated fitness app with live coaching, streak tracking, and social challenges.",
+          "A healthcare companion that brings appointments, records, and day-to-day health tracking into one simple experience across web and mobile.",
+        meta: "Also available on the Play Store and the App Store",
         image:
-          "https://images.unsplash.com/photo-1517836357463-d25dfeac3438?q=80&w=1600&auto=format&fit=crop",
-        link: "#",
-      },
-    ],
-  },
-  {
-    id: "ai-cloud",
-    label: "AI & Cloud",
-    entries: [
-      {
-        id: "atlas-mlops",
-        title: "Atlas — MLOps Platform",
-        category: "Cloud & DevOps",
-        description:
-          "A self-service ML platform on Kubernetes that took model deployment from weeks to minutes.",
-        image:
-          "https://images.unsplash.com/photo-1558494949-ef010cbdcc31?q=80&w=1600&auto=format&fit=crop",
-        link: "#",
+          "https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?q=80&w=1600&auto=format&fit=crop",
+        link: "https://www.sehatbuddy.in/",
       },
       {
-        id: "vision-inspect",
-        title: "Vision — Quality Inspection",
-        category: "AI/ML",
+        id: "kayo-physio",
+        title: "Kayo Physio",
+        category: "Web & Mobile App",
         description:
-          "A computer-vision system that flags manufacturing defects in real time with 99.2% precision.",
+          "A physiotherapy platform pairing a patient-facing app with a web app for clinics — bookings, guided exercise plans, and progress tracking between sessions.",
+        meta: "Mobile app + web app",
         image:
-          "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?q=80&w=1600&auto=format&fit=crop",
-        link: "#",
-      },
-      {
-        id: "cirrus-infra",
-        title: "Cirrus — Cloud Migration",
-        category: "Cloud & DevOps",
-        description:
-          "A zero-downtime migration of a legacy monolith to a resilient, auto-scaling cloud architecture.",
-        image:
-          "https://images.unsplash.com/photo-1544197150-b99a580bb7a8?q=80&w=1600&auto=format&fit=crop",
-        link: "#",
+          "https://images.unsplash.com/photo-1649751361457-01d3a696c7e6?q=80&w=1600&auto=format&fit=crop",
+        link: "https://kayo-physio.vercel.app/",
+        status: DEV_STATUS,
       },
     ],
   },
   {
-    id: "design",
-    label: "Design",
+    id: "travel-hospitality",
+    label: "Travel & Hospitality",
     entries: [
       {
-        id: "canvas-ds",
-        title: "Canvas — Design System",
-        category: "Product Design",
+        id: "qintara-living",
+        title: "Qintara Living",
+        category: "Travel & Hospitality",
         description:
-          "A cohesive, documented design system that unified six product teams under one visual language.",
+          "A hospitality brand site for a premium stay experience — rooms, amenities, and enquiries presented with the polish guests expect before they book.",
         image:
-          "https://images.unsplash.com/photo-1545235617-9465d2a55698?q=80&w=1600&auto=format&fit=crop",
-        link: "#",
+          "https://images.unsplash.com/photo-1566073771259-6a8506099945?q=80&w=1600&auto=format&fit=crop",
+        link: "https://www.qintaraliving.com/",
       },
       {
-        id: "bloom-rebrand",
-        title: "Bloom — Product Redesign",
-        category: "Product Design",
+        id: "aum-tourism",
+        title: "Aum Tourism",
+        category: "Travel & Hospitality",
         description:
-          "An end-to-end UX overhaul that simplified onboarding and doubled activation in the first month.",
+          "A tour operator site that turns packages, itineraries, and destinations into something travellers can browse and enquire about in minutes.",
         image:
-          "https://images.unsplash.com/photo-1586717791821-3f44a563fa4c?q=80&w=1600&auto=format&fit=crop",
-        link: "#",
+          "https://images.unsplash.com/photo-1488646953014-85cb44e25828?q=80&w=1600&auto=format&fit=crop",
+        link: "https://aumtourism.in/",
+      },
+      {
+        id: "tour-my-holiday",
+        title: "Tour My Holiday",
+        category: "Travel & Hospitality",
+        description:
+          "A holiday planning experience built around discovery — curated trips and destination pages that guide visitors from browsing to a booking enquiry.",
+        image:
+          "https://images.unsplash.com/photo-1524661135-423995f22d0b?q=80&w=1600&auto=format&fit=crop",
+        link: "https://tourmyholiday.netlify.app/",
+      },
+      {
+        id: "real-jungle-project",
+        title: "The Real Jungle Project",
+        category: "Travel & Hospitality",
+        description:
+          "A site for an eco-tourism retreat, leaning on immersive photography and an unhurried layout to sell the experience of the place itself.",
+        image:
+          "https://images.unsplash.com/photo-1441974231531-c6227db76b6e?q=80&w=1600&auto=format&fit=crop",
+        link: "https://the-real-jungle-project.vercel.app/",
+        status: DEV_STATUS,
       },
     ],
   },

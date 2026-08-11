@@ -82,13 +82,21 @@ export default function AllWork() {
                   <span className="absolute left-3 top-3 rounded-full bg-black/60 px-3 py-1 text-xs font-medium text-white backdrop-blur-sm">
                     {project.category}
                   </span>
+                  {project.status && (
+                    <span className="absolute right-3 top-3 rounded-full bg-white/85 px-3 py-1 text-xs font-medium text-neutral-700 backdrop-blur-sm">
+                      In development
+                    </span>
+                  )}
                 </div>
                 <div className="flex flex-1 flex-col p-6">
                   <h3 className="mb-2 text-lg font-bold tracking-tight text-neutral-900">
                     {project.title}
                   </h3>
-                  <p className="mb-4 flex-1 text-sm leading-relaxed text-neutral-500">
+                  <p className="mb-2 text-sm leading-relaxed text-neutral-500">
                     {project.description}
+                  </p>
+                  <p className="mb-4 flex-1 text-xs text-neutral-400">
+                    {project.meta ?? project.status ?? ""}
                   </p>
                   <span className="inline-flex items-center gap-1.5 text-sm font-semibold text-[var(--color-primary)]">
                     View project

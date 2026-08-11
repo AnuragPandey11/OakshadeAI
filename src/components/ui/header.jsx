@@ -32,7 +32,9 @@ const baseTabs = [
   { id: "services", label: "Our Services", icon: <FaCogs size={22} /> },
   { id: "process", label: "Our Process", icon: <FaProjectDiagram size={22} /> },
   { id: "work", label: "Our Work", icon: <FaBriefcase size={22} /> },
-  { id: "team", label: "Core Team", icon: <FaUsers size={22} /> },
+  // Core Team is hidden for now (the section isn't rendered on Home) —
+  // uncomment to bring the tab back alongside the section.
+  // { id: "team", label: "Core Team", icon: <FaUsers size={22} /> },
   { id: "contact", label: "Contact", icon: <FaEnvelope size={22} /> },
 ];
 
