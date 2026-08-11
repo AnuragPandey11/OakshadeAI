@@ -1,17 +1,16 @@
 // src/components/ui/our-process.jsx
 import { ProductHighlightCard } from "./product-card";
 import Carousel from "./carousel";
-import { Search, PenTool, Code2, CheckCircle2, Rocket, LifeBuoy } from "lucide-react";
+import { Search, PenTool, Code2, CheckCircle2, Rocket, Users } from "lucide-react";
 import { processSteps } from "../../utils/processData";
 
 // lucide icon per step, keyed by the step's `iconName` in processData.
-const iconMap = { Search, PenTool, Code2, CheckCircle2, Rocket, LifeBuoy };
+const iconMap = { Search, PenTool, Code2, CheckCircle2, Rocket, Users };
 
-// The home cards use the brand mark as their decorative corner image; the
-// per-step photos in processData are used by the FeatureCarousel on the
-// service pages.
-const CARD_IMAGE = "/media/logo.png";
-
+// Each card uses its own step icon twice: small beside the "Step 0N" label, and
+// oversized as the corner watermark (this replaced the brand mark, which was
+// identical on all six cards). The per-step photos in processData are used by
+// the FeatureCarousel on the service pages.
 function ProcessCard(s) {
   const Icon = iconMap[s.iconName] ?? Search;
   return (
@@ -21,8 +20,7 @@ function ProcessCard(s) {
       categoryIcon={<Icon className="h-5 w-5" />}
       title={s.title}
       description={s.description}
-      imageSrc={CARD_IMAGE}
-      imageAlt={s.title}
+      media={<Icon className="h-44 w-44 text-neutral-900/[0.14]" strokeWidth={1.25} />}
     />
   );
 }

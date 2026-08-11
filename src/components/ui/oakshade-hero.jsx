@@ -21,7 +21,9 @@ export function OakshadeHero() {
     <section id="home" className="w-full bg-[#bcbcbc] lg:h-screen">
       <div className="mx-auto flex w-full max-w-[1600px] flex-col items-center gap-5 px-6 pb-12 pt-24 lg:h-full lg:flex-row lg:items-center lg:gap-10 lg:pb-0 lg:pt-0">
         {/* Left — text */}
-        <div className="order-2 w-full text-center lg:order-1 lg:w-[40%] lg:text-left">
+        {/* Left padding on lg+ only — keeps the copy off the viewport edge on
+            wide screens without narrowing the centered mobile layout. */}
+        <div className="order-2 w-full text-center lg:order-1 lg:w-[40%] lg:pl-10 lg:text-left xl:pl-16">
           <p className="mb-4 text-[11px] font-semibold uppercase tracking-[0.25em] text-neutral-600 sm:text-xs">
             Oakshade AI
           </p>

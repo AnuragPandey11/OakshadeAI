@@ -62,7 +62,7 @@ export const processSteps = [
   {
     id: "6",
     name: "Step 06",
-    iconName: "LifeBuoy",
+    iconName: "Users",
     title: "Support",
     description:
       "We stay on after launch: monitoring, fixes, and a roadmap for the next set of improvements.",

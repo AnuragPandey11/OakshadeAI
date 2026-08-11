@@ -10,7 +10,7 @@ import {
   FaUsers,
   FaEnvelope,
 } from "react-icons/fa";
-import { FiMenu, FiX, FiChevronDown } from "react-icons/fi";
+import { FiMenu, FiX, FiChevronDown, FiChevronRight } from "react-icons/fi";
 import { AnimatePresence, motion } from "framer-motion";
 import {
   Rocket,
@@ -38,13 +38,21 @@ const baseTabs = [
   { id: "contact", label: "Contact", icon: <FaEnvelope size={22} /> },
 ];
 
-function Logo({ className = "h-14" }) {
+// Horizontal lockup: the tree mark beside live text, rather than the stacked
+// oakshade-logo.png. That PNG is ~45% transparent margin and bakes the wordmark
+// in at 3.5% of its height, so inside a nav pill the mark stayed small and the
+// wordmark rendered as an illegible smudge. Splitting them lets the mark fill
+// the pill and keeps "OAKSHADE AI" readable as real text.
+function Logo({ markClassName = "h-12", textClassName = "text-[13px]" }) {
   return (
-    <img
-      src="/media/oakshade-logo.png"
-      alt="Oakshade AI"
-      className={`${className} w-auto`}
-    />
+    <span className="flex items-center gap-2.5">
+      <img src="/media/oakshade-mark.png" alt="" className={`${markClassName} w-auto`} />
+      <span
+        className={`${textClassName} whitespace-nowrap font-bold tracking-[0.2em] text-neutral-900`}
+      >
+        OAKSHADE AI
+      </span>
+    </span>
   );
 }
 
@@ -141,28 +149,29 @@ export default function Header() {
       <header className="fixed inset-x-0 top-10 z-50 hidden justify-center lg:flex">
         <div className="flex items-center gap-4 rounded-full border border-white/40 bg-white/25 py-1.5 pl-6 pr-6 shadow-xl shadow-black/10 backdrop-blur-xl backdrop-saturate-150">
           <button type="button" onClick={() => goToSection("home")} aria-label="Home" className="shrink-0">
-            {/* Cap the layout height to the tab row so the pill doesn't grow, but
-                render the logo larger with scale (transform-only, no layout impact). */}
-            <Logo className="h-11 origin-left scale-[1.6]" />
+            {/* h-12 is the tallest mark the pill fits without growing it. */}
+            <Logo markClassName="h-12" />
           </button>
           <span className="ml-6 h-7 w-px bg-neutral-500/30" />
           <FluidTabs tabs={tabs} activeTab={active} onSelect={goToSection} />
         </div>
       </header>
 
-      {/* ---- Mobile: top bar with logo + hamburger (aligned) ---- */}
-      <div className="fixed inset-x-0 top-0 z-50 flex items-center justify-between px-5 py-3 lg:hidden">
-        <button type="button" onClick={() => goToSection("home")} aria-label="Home" className="shrink-0">
-          <Logo className="h-14 sm:h-16" />
-        </button>
-        <button
-          type="button"
-          aria-label="Open menu"
-          onClick={() => setOpen(true)}
-          className="flex h-11 w-11 items-center justify-center rounded-xl border border-white/50 bg-white/30 text-neutral-900 shadow-md backdrop-blur-xl backdrop-saturate-150 active:scale-95"
-        >
-          <FiMenu size={24} />
-        </button>
+      {/* ---- Mobile: logo + hamburger together inside one glass pill ---- */}
+      <div className="fixed inset-x-0 top-0 z-50 px-4 pt-3 lg:hidden">
+        <div className="flex items-center justify-between gap-3 rounded-full border border-white/40 bg-white/25 py-2 pl-4 pr-2 shadow-xl shadow-black/10 backdrop-blur-xl backdrop-saturate-150">
+          <button type="button" onClick={() => goToSection("home")} aria-label="Home" className="shrink-0">
+            <Logo markClassName="h-10" textClassName="text-[11px]" />
+          </button>
+          <button
+            type="button"
+            aria-label="Open menu"
+            onClick={() => setOpen(true)}
+            className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-white/50 bg-white/40 text-neutral-900 shadow-sm shadow-black/10 active:scale-95"
+          >
+            <FiMenu size={24} />
+          </button>
+        </div>
       </div>
 
       {/* ---- Mobile: full-screen overlay menu (monochrome) ---- */}
@@ -173,21 +182,25 @@ export default function Header() {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.25 }}
-            className="fixed inset-0 z-[60] flex flex-col bg-white lg:hidden"
+            className="fixed inset-0 z-[60] flex flex-col bg-neutral-50 font-sans antialiased lg:hidden"
           >
-            <div className="flex items-center justify-between px-5 py-3">
-              <Logo className="h-14 sm:h-16" />
+            {/* Padding matches the glass pill's outer offsets so the logo and
+                button don't jump when the menu opens. */}
+            <div className="flex items-center justify-between py-5 pl-8 pr-6">
+              <Logo markClassName="h-12" textClassName="text-[15px]" />
               <button
                 type="button"
                 aria-label="Close menu"
                 onClick={() => setOpen(false)}
-                className="flex h-11 w-11 items-center justify-center rounded-xl text-neutral-900 active:scale-95"
+                className="flex h-12 w-12 items-center justify-center rounded-full bg-white text-neutral-900 shadow-md shadow-black/10 active:scale-95"
               >
-                <FiX size={28} />
+                <FiX size={24} />
               </button>
             </div>
 
-            <nav className="flex flex-1 flex-col items-center justify-center gap-6 overflow-y-auto py-8">
+            {/* Left-aligned row list: label on the left, a round chevron button
+                on the right, hairline dividers between rows. */}
+            <nav className="flex-1 overflow-y-auto px-8 pt-10">
               {tabs.map((t, i) => {
                 const isServices = t.id === "services";
                 return (
@@ -196,42 +209,60 @@ export default function Header() {
                     initial={{ opacity: 0, y: 18 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.08 + i * 0.06, duration: 0.3 }}
-                    className="flex flex-col items-center"
+                    className="border-b border-neutral-200 last:border-b-0"
                   >
-                    {isServices ? (
-                      <>
-                        <button
-                          type="button"
-                          onClick={() => setServicesOpen((v) => !v)}
-                          className={`flex items-center gap-2 text-3xl font-extrabold uppercase tracking-wide transition-colors ${
-                            active === t.id ? "text-neutral-900" : "text-neutral-400"
-                          }`}
-                        >
-                          {t.label}
+                    <button
+                      type="button"
+                      aria-expanded={isServices ? servicesOpen : undefined}
+                      onClick={() => {
+                        if (isServices) {
+                          setServicesOpen((v) => !v);
+                          return;
+                        }
+                        setOpen(false);
+                        goToSection(t.id);
+                      }}
+                      className="flex w-full items-center justify-between gap-4 py-6 text-left"
+                    >
+                      <span
+                        className={`font-sans text-3xl font-medium normal-case tracking-tight transition-colors ${
+                          active === t.id ? "text-neutral-900" : "text-neutral-500"
+                        }`}
+                      >
+                        {t.label}
+                      </span>
+                      <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-white text-neutral-500 shadow-sm shadow-black/10">
+                        {isServices ? (
                           <FiChevronDown
-                            size={22}
+                            size={20}
                             className={`transition-transform duration-300 ${
                               servicesOpen ? "rotate-180" : ""
                             }`}
                           />
-                        </button>
+                        ) : (
+                          <FiChevronRight size={20} />
+                        )}
+                      </span>
+                    </button>
 
-                        <AnimatePresence>
-                          {servicesOpen && (
-                            <motion.div
-                              initial={{ height: 0, opacity: 0 }}
-                              animate={{ height: "auto", opacity: 1 }}
-                              exit={{ height: 0, opacity: 0 }}
-                              transition={{ duration: 0.25 }}
-                              className="mt-4 flex flex-col items-center gap-3 overflow-hidden"
-                            >
+                    {isServices && (
+                      <AnimatePresence>
+                        {servicesOpen && (
+                          <motion.div
+                            initial={{ height: 0, opacity: 0 }}
+                            animate={{ height: "auto", opacity: 1 }}
+                            exit={{ height: 0, opacity: 0 }}
+                            transition={{ duration: 0.25 }}
+                            className="overflow-hidden"
+                          >
+                            <div className="flex flex-col items-start gap-4 pb-6">
                               <button
                                 type="button"
                                 onClick={() => {
                                   setOpen(false);
                                   navigate("/services");
                                 }}
-                                className="text-base font-bold uppercase tracking-wide text-neutral-900"
+                                className="text-left font-sans text-lg font-semibold normal-case tracking-tight text-neutral-900"
                               >
                                 All services
                               </button>
@@ -243,42 +274,29 @@ export default function Header() {
                                     setOpen(false);
                                     navigate(`/services/${s.slug}`);
                                   }}
-                                  className="max-w-xs text-center text-sm font-medium text-neutral-500"
+                                  className="text-left font-sans text-base font-medium normal-case tracking-tight text-neutral-500"
                                 >
                                   {s.navLabel}
                                 </button>
                               ))}
-                            </motion.div>
-                          )}
-                        </AnimatePresence>
-                      </>
-                    ) : (
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setOpen(false);
-                          goToSection(t.id);
-                        }}
-                        className={`text-3xl font-extrabold uppercase tracking-wide transition-colors ${
-                          active === t.id ? "text-neutral-900" : "text-neutral-400"
-                        }`}
-                      >
-                        {t.label}
-                      </button>
+                            </div>
+                          </motion.div>
+                        )}
+                      </AnimatePresence>
                     )}
                   </motion.div>
                 );
               })}
             </nav>
 
-            <div className="px-6 pb-10">
+            <div className="px-8 pb-10">
               <button
                 type="button"
                 onClick={() => {
                   setOpen(false);
                   goToSection("contact");
                 }}
-                className="w-full rounded-2xl bg-neutral-900 py-5 text-base font-bold uppercase tracking-wide text-white shadow-lg shadow-black/20 transition-colors hover:bg-neutral-800 active:scale-[0.99]"
+                className="w-full rounded-2xl bg-neutral-900 py-5 text-base font-semibold tracking-tight text-white shadow-lg shadow-black/20 transition-colors hover:bg-neutral-800 active:scale-[0.99]"
               >
                 Book Free Consultation
               </button>

@@ -4,7 +4,7 @@ import { motion, useMotionValue, useSpring, useTransform } from "framer-motion";
 import { cn } from "../../lib/utils";
 
 export const ProductHighlightCard = React.forwardRef(
-  ({ className, categoryIcon, category, title, description, imageSrc, imageAlt, ...props }, ref) => {
+  ({ className, categoryIcon, category, title, description, imageSrc, imageAlt, media, ...props }, ref) => {
     // --- 3D tilt ---
     const mouseX = useMotionValue(0);
     const mouseY = useMotionValue(0);
@@ -77,15 +77,29 @@ export const ProductHighlightCard = React.forwardRef(
             </div>
           </div>
 
-          {/* Your image / GIF */}
-          <motion.img
-            src={imageSrc}
-            alt={imageAlt}
-            style={{ transform: "translateZ(50px)" }}
-            whileHover={{ scale: 1.1, y: -20, x: 10 }}
-            transition={{ type: "spring", stiffness: 300, damping: 20 }}
-            className="absolute -right-12 -bottom-12 h-56 w-56 object-contain"
-          />
+          {/* Corner decoration: either a rendered node (`media`, e.g. an icon)
+              or an image / GIF via `imageSrc`. Sits below the z-10 text block
+              so it reads as a watermark rather than competing with the copy. */}
+          {media ? (
+            <motion.div
+              aria-hidden="true"
+              style={{ transform: "translateZ(50px)" }}
+              whileHover={{ scale: 1.1, y: -20, x: 10 }}
+              transition={{ type: "spring", stiffness: 300, damping: 20 }}
+              className="pointer-events-none absolute -right-6 -bottom-6"
+            >
+              {media}
+            </motion.div>
+          ) : (
+            <motion.img
+              src={imageSrc}
+              alt={imageAlt}
+              style={{ transform: "translateZ(50px)" }}
+              whileHover={{ scale: 1.1, y: -20, x: 10 }}
+              transition={{ type: "spring", stiffness: 300, damping: 20 }}
+              className="absolute -right-12 -bottom-12 h-56 w-56 object-contain"
+            />
+          )}
         </div>
       </motion.div>
     );
