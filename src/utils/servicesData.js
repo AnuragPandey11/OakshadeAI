@@ -20,6 +20,11 @@ export const services = [
     subtitle: "Modernise, automate, and scale",
     iconName: "Rocket",
     color: "#171717",
+    // Card image shown on the front of the home carousel flip-card.
+    // A planning/advisory scene reads truer to "IT consultation" than the
+    // code-on-screen shot used on the detail page below.
+    image:
+      "https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?q=80&w=900&auto=format&fit=crop",
     // Short copy for cards / carousel
     description:
       "We help you rethink legacy systems and processes, mapping a pragmatic roadmap that turns technology into a growth engine.",
@@ -68,6 +73,9 @@ export const services = [
     subtitle: "iOS, Android & cross-platform",
     iconName: "Smartphone",
     color: "#2b2b2b",
+    // Card image shown on the front of the home carousel flip-card.
+    image:
+      "https://images.unsplash.com/photo-1512941937669-90a1b58e7e9c?q=80&w=900&auto=format&fit=crop",
     description:
       "Native and cross-platform apps engineered for performance, delightful UX, and effortless scale across every device.",
     features: [
@@ -114,6 +122,9 @@ export const services = [
     subtitle: "Fast, modern, conversion-ready",
     iconName: "Globe",
     color: "#171717",
+    // Card image shown on the front of the home carousel flip-card.
+    image:
+      "https://images.unsplash.com/photo-1467232004584-a241de8bcf5d?q=80&w=900&auto=format&fit=crop",
     description:
       "High-performance marketing sites and web apps built with modern frameworks, optimised for speed, SEO, and conversion.",
     features: [
@@ -160,6 +171,9 @@ export const services = [
     subtitle: "Intelligent products & automation",
     iconName: "BrainCircuit",
     color: "#2b2b2b",
+    // Card image shown on the front of the home carousel flip-card.
+    image:
+      "https://images.unsplash.com/photo-1620712943543-bcc4688e7485?q=80&w=900&auto=format&fit=crop",
     description:
       "From LLM-powered features to custom models, we help you ship AI that solves real problems and delights your users.",
     features: [
@@ -206,6 +220,9 @@ export const services = [
     subtitle: "Reliable, scalable infrastructure",
     iconName: "Cloud",
     color: "#171717",
+    // Card image shown on the front of the home carousel flip-card.
+    image:
+      "https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=900&auto=format&fit=crop",
     description:
       "We architect and automate cloud infrastructure so your teams ship faster with confidence — resilient, secure, and cost-aware.",
     features: [
@@ -252,6 +269,9 @@ export const services = [
     subtitle: "UX, UI & design systems",
     iconName: "PenTool",
     color: "#2b2b2b",
+    // Card image shown on the front of the home carousel flip-card.
+    image:
+      "https://images.unsplash.com/photo-1561070791-2526d30994b5?q=80&w=900&auto=format&fit=crop",
     description:
       "Research-driven product design that turns complex problems into intuitive, beautiful, and cohesive user experiences.",
     features: [

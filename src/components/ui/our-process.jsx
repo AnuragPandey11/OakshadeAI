@@ -35,7 +35,7 @@ export default function OurProcess() {
           Our Process
         </p>
         <h2 className="mb-14 text-center text-3xl font-bold tracking-tight text-neutral-900 md:text-5xl">
-          Lorem ipsum dolor sit amet
+          From first brief to live product
         </h2>
 
         {/* Tablet / desktop: static grid (unchanged) */}

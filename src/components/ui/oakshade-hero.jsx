@@ -23,14 +23,15 @@ export function OakshadeHero() {
         {/* Left — text */}
         <div className="order-2 w-full text-center lg:order-1 lg:w-[40%] lg:text-left">
           <p className="mb-4 text-[11px] font-semibold uppercase tracking-[0.25em] text-neutral-600 sm:text-xs">
-            Lorem Ipsum
+            Oakshade AI
           </p>
           <h1 className="mb-5 text-3xl font-bold leading-[1.08] tracking-tight text-neutral-900 sm:text-4xl md:text-5xl xl:text-6xl">
-            Lorem ipsum dolor sit amet.
+            Software that moves your business forward.
           </h1>
           <p className="mx-auto max-w-md text-base leading-relaxed text-neutral-700 md:text-lg lg:mx-0">
-            Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor
-            incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam.
+            We design and build websites, mobile apps, and AI-powered platforms — from the
+            first conversation through launch and everything after it. One team, from
+            strategy to shipped product.
           </p>
         </div>
 

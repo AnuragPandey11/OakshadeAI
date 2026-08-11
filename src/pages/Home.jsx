@@ -5,7 +5,9 @@ import { OakshadeHero } from "../components/ui/oakshade-hero.jsx";
 import OurServices from "../components/ui/our-services.jsx";
 import OurProcess from "../components/ui/our-process.jsx";
 import OurWork from "../components/ui/our-work.jsx";
-import CoreTeam from "../components/ui/core-team.jsx";
+// Core Team is intentionally not rendered for now — keep the import commented
+// out (not deleted) so the section can be switched back on later.
+// import CoreTeam from "../components/ui/core-team.jsx";
 import ContactSection from "../components/ui/contact-section.jsx";
 
 export default function Home() {
@@ -42,8 +44,9 @@ export default function Home() {
       {/* OUR WORK (white) — multi-entry project tabs */}
       <OurWork />
 
-      {/* CORE TEAM (grey) — profile carousel */}
-      <CoreTeam />
+      {/* CORE TEAM (grey) — profile carousel. Hidden for now; re-enable by
+          uncommenting this and the import above (plus the header nav tab). */}
+      {/* <CoreTeam /> */}
 
       {/* CONTACT (white) */}
       <ContactSection />

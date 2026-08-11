@@ -6,6 +6,9 @@ import { FaGithub, FaTwitter, FaYoutube, FaLinkedinIn } from "react-icons/fa";
 import { cn } from "../../lib/utils";
 
 // Two team members for now — edit names, roles, photos, and social links here.
+// NOTE: this is the only placeholder copy left on the site. It is not rendered
+// anywhere at the moment (the Core Team section is switched off in Home.jsx);
+// replace these with real people before turning that section back on.
 const testimonials = [
   {
     name: "Lorem Ipsum",

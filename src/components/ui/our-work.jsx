@@ -7,7 +7,7 @@ import SectionHeading from "./section-heading";
 import { projectGroups } from "../../utils/projectsData";
 
 // A single project card (shared structure across every entry).
-function ProjectContent({ title, description, image, link, category }) {
+function ProjectContent({ title, description, image, link, category, status, meta }) {
   return (
     <div className="grid h-full grid-cols-1 items-stretch gap-6 md:grid-cols-[7fr_3fr]">
       {/* Image — 70% */}
@@ -25,7 +25,13 @@ function ProjectContent({ title, description, image, link, category }) {
           </span>
         )}
         <h3 className="text-2xl font-bold tracking-tight text-white">{title}</h3>
+        {status && (
+          <span className="inline-flex w-fit items-center rounded-full border border-white/20 bg-white/10 px-3 py-1 text-xs font-medium text-white/70">
+            {status}
+          </span>
+        )}
         <p className="text-sm leading-relaxed text-gray-300">{description}</p>
+        {meta && <p className="text-xs text-white/50">{meta}</p>}
         <a
           href={link}
           target="_blank"
@@ -134,7 +140,7 @@ export default function OurWork() {
         {/* Left: heading — Right: all-work button */}
         <SectionHeading
           eyebrow="Our Work"
-          title="Lorem ipsum dolor sit amet"
+          title="Products we've designed, built, and shipped"
           ctaLabel="All our work"
           ctaTo="/work"
         />

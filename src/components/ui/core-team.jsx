@@ -9,7 +9,7 @@ export default function CoreTeam() {
           Core Team
         </p>
         <h2 className="mb-14 text-center text-3xl font-bold tracking-tight text-neutral-900 md:text-5xl">
-          Lorem ipsum dolor sit amet
+          The people behind the work
         </h2>
 
         <TestimonialCarousel />

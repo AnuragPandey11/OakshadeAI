@@ -1,15 +1,17 @@
 // src/components/ui/footer.jsx
 import { Link } from "react-router-dom";
 import { ArrowRight } from "lucide-react";
-import { FaInstagram, FaFacebookF, FaLinkedinIn } from "react-icons/fa";
+// Social icons are not rendered for now (no accounts yet) — restore this
+// import together with the socialLinks block below.
+// import { FaInstagram, FaFacebookF, FaLinkedinIn } from "react-icons/fa";
 import { brandConfig } from "../../utils/brandConfig";
 import { services } from "../../utils/servicesData";
 
-const socialLinks = [
-  { label: "Instagram", href: brandConfig.socialMedia.instagram, Icon: FaInstagram },
-  { label: "Facebook", href: brandConfig.socialMedia.facebook, Icon: FaFacebookF },
-  { label: "LinkedIn", href: brandConfig.socialMedia.linkedin, Icon: FaLinkedinIn },
-];
+// const socialLinks = [
+//   { label: "Instagram", href: brandConfig.socialMedia.instagram, Icon: FaInstagram },
+//   { label: "Facebook", href: brandConfig.socialMedia.facebook, Icon: FaFacebookF },
+//   { label: "LinkedIn", href: brandConfig.socialMedia.linkedin, Icon: FaLinkedinIn },
+// ];
 
 const exploreLinks = [
   { label: "Home", to: "/" },
@@ -30,8 +32,6 @@ const linkClass =
   "text-sm text-neutral-400 transition-colors hover:text-white";
 
 export default function Footer() {
-  const { address } = brandConfig;
-
   return (
     <footer className="w-full bg-neutral-950 text-neutral-400">
       <div className="mx-auto max-w-6xl px-6 py-16 md:py-20">
@@ -48,6 +48,7 @@ export default function Footer() {
             <p className="mt-5 max-w-xs text-sm leading-relaxed text-neutral-400">
               {brandConfig.tagline}.
             </p>
+            {/* Social links — hidden until the accounts exist.
             <div className="mt-6 flex gap-3">
               {socialLinks.map(({ label, href, Icon }) => (
                 <a
@@ -62,6 +63,7 @@ export default function Footer() {
                 </a>
               ))}
             </div>
+            */}
           </div>
 
           {/* Services */}
@@ -101,6 +103,7 @@ export default function Footer() {
                   {brandConfig.email}
                 </a>
               </li>
+              {/* Phone + address are hidden for now — email only.
               <li>
                 <a
                   href={`tel:${brandConfig.phone.replace(/[^\d+]/g, "")}`}
@@ -116,6 +119,7 @@ export default function Footer() {
                 <br />
                 {address.city}
               </li>
+              */}
             </ul>
 
             <Link

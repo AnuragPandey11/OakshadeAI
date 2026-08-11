@@ -11,7 +11,7 @@ export default function OurServices() {
         {/* Left: heading — Right: view-all button */}
         <SectionHeading
           eyebrow="Our Services"
-          title="Lorem ipsum dolor sit amet"
+          title="Everything you need to build and scale"
           ctaLabel="View all services"
           ctaTo="/services"
         />
@@ -27,6 +27,7 @@ export default function OurServices() {
               description={s.description}
               features={s.features}
               color={s.color}
+              media={s.image}
             />
           ))}
         </Carousel>
