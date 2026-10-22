@@ -46,19 +46,23 @@ export function AnimatedTabs({ tabs = [], defaultTab, className }) {
       <div className="self-center max-w-full">
         <div
           ref={scrollRef}
-          className="flex max-w-full flex-nowrap gap-2 overflow-x-auto rounded-xl bg-[#11111198] bg-opacity-50 p-1 backdrop-blur-sm [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:flex-wrap sm:overflow-visible"
+          data-lenis-prevent-horizontal
+          className="flex max-w-full flex-nowrap gap-2 overflow-x-auto rounded-full border border-white/10 bg-white/[0.04] p-1 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:flex-wrap sm:overflow-visible"
         >
           {tabs.map((tab) => (
             <button
               key={tab.id}
               ref={(el) => (tabRefs.current[tab.id] = el)}
               onClick={() => selectTab(tab.id)}
-              className="relative shrink-0 whitespace-nowrap rounded-lg px-4 py-2 text-sm font-medium text-white outline-none transition-colors"
+              className={cn(
+                "relative shrink-0 whitespace-nowrap rounded-full px-4 py-2 text-sm font-medium outline-none transition-colors duration-300",
+                activeTab === tab.id ? "text-neutral-900" : "text-white/60 hover:text-white"
+              )}
             >
               {activeTab === tab.id && (
                 <motion.div
                   layoutId="active-tab"
-                  className="absolute inset-0 rounded-lg bg-[#111111d1] bg-opacity-50 shadow-[0_0_20px_rgba(0,0,0,0.2)] backdrop-blur-sm"
+                  className="absolute inset-0 rounded-full bg-white"
                   transition={{ type: "spring", duration: 0.6 }}
                 />
               )}
@@ -78,7 +82,7 @@ export function AnimatedTabs({ tabs = [], defaultTab, className }) {
                 onClick={() => selectTab(tab.id)}
                 className={cn(
                   "h-1.5 rounded-full transition-all duration-300",
-                  i === activeIndex ? "w-5 bg-neutral-800" : "w-1.5 bg-neutral-300"
+                  i === activeIndex ? "w-5 bg-white" : "w-1.5 bg-white/25"
                 )}
               />
             ))}
@@ -86,7 +90,7 @@ export function AnimatedTabs({ tabs = [], defaultTab, className }) {
         )}
       </div>
 
-      <div className="h-full min-h-[460px] rounded-xl border border-white/10 bg-[#11111198] bg-opacity-50 p-6 text-white shadow-[0_0_20px_rgba(0,0,0,0.2)] backdrop-blur-sm md:p-8">
+      <div className="h-full min-h-[460px] rounded-2xl border border-white/10 bg-white/[0.03] p-6 text-white md:p-8">
         {tabs.map(
           (tab) =>
             activeTab === tab.id && (

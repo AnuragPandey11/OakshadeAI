@@ -1,12 +1,13 @@
 // src/components/ui/contact-section.jsx
-import { useState } from "react";
-import { motion } from "framer-motion";
-import { MapPin, Phone, Mail, Clock, Send, CheckCircle } from "lucide-react";
+import { useRef, useState } from "react";
+import { motion, useReducedMotion, useScroll, useTransform } from "framer-motion";
+import { MapPin, Phone, Mail, Clock, Send, Check } from "lucide-react";
 // Socials + WhatsApp are not rendered for now — re-add this import when the
 // socials card / WhatsApp info card below are switched back on.
 // import { FaWhatsapp, FaInstagram, FaFacebookF } from "react-icons/fa";
 import { contactData } from "../../utils/contactData";
 import { brandConfig } from "../../utils/brandConfig";
+import { Eyebrow, MaskedText } from "./reveal";
 
 const iconMap = { MapPin, Phone, Mail, Clock };
 
@@ -126,6 +127,12 @@ export default function ContactSection() {
   const [isSubmitted, setIsSubmitted] = useState(false);
 
   const { hero, infoCards, form, socialsCard } = contactData;
+
+  // Hero image parallax: it drifts slower than the page as the hero scrolls.
+  const heroRef = useRef(null);
+  const reduce = useReducedMotion();
+  const { scrollYProgress } = useScroll({ target: heroRef, offset: ["start end", "end start"] });
+  const heroImageY = useTransform(scrollYProgress, [0, 1], ["-8%", "8%"]);
   const fields = form.fields;
 
   const handleChange = (e) => {
@@ -211,13 +218,19 @@ export default function ContactSection() {
   return (
     <section id="contact" className="scroll-mt-24 bg-white text-neutral-800">
       {/* ── Hero ───────────────────────────────────────────────────── */}
-      <div className="relative overflow-hidden h-[65vh] min-h-[440px] md:min-h-[520px]">
-        {/* Full-bleed image */}
+      <div ref={heroRef} className="relative overflow-hidden h-[65vh] min-h-[440px] md:min-h-[520px] bg-neutral-900">
+        {/* Full-bleed image — oversized for the parallax, and it settles out
+            of a slow zoom the first time it scrolls into view. */}
         <div className="absolute inset-0 z-0">
-          <img
+          <motion.img
             src={hero.image}
             alt={hero.imageAlt}
-            className="absolute inset-0 h-full w-full object-cover"
+            style={reduce ? undefined : { y: heroImageY }}
+            initial={{ scale: 1.15 }}
+            whileInView={{ scale: 1 }}
+            viewport={{ once: true, amount: 0.3 }}
+            transition={{ duration: 2.4, ease: [0.22, 1, 0.36, 1] }}
+            className="absolute inset-x-0 -top-[10%] h-[120%] w-full object-cover"
           />
           {/* Layered gradients: left-side dark for text legibility, bottom vignette */}
           <div className="absolute inset-0 bg-gradient-to-r from-black/75 via-black/40 to-black/10" />
@@ -227,25 +240,15 @@ export default function ContactSection() {
         {/* Text — left-aligned, bottom-anchored */}
         <div className="relative z-10 h-full flex items-end">
           <div className="container mx-auto px-6 lg:px-16 pb-14 md:pb-20 max-w-7xl">
-            <motion.p
-              variants={fadeUp}
-              initial="hidden"
-              whileInView="visible"
-              viewport={{ once: true }}
-              className="text-sm font-semibold uppercase tracking-[0.2em] text-neutral-300 mb-4"
-            >
+            <Eyebrow className="text-sm tracking-[0.2em] text-neutral-300 mb-4">
               {hero.eyebrow}
-            </motion.p>
-            <motion.h1
-              variants={fadeUp}
-              initial="hidden"
-              whileInView="visible"
-              viewport={{ once: true }}
-              custom={1}
+            </Eyebrow>
+            <MaskedText
+              as="h1"
+              delay={0.1}
+              text={hero.heading}
               className="text-4xl sm:text-5xl md:text-6xl font-bold tracking-tight leading-[1.08] text-white mb-5 max-w-2xl"
-            >
-              {hero.heading}
-            </motion.h1>
+            />
             <motion.p
               variants={fadeUp}
               initial="hidden"
@@ -331,16 +334,32 @@ export default function ContactSection() {
               viewport={{ once: true }}
               className="lg:col-span-7"
             >
-              <p className="text-sm font-semibold uppercase tracking-[0.2em] text-neutral-400 mb-3">
+              <Eyebrow className="text-sm tracking-[0.2em] text-neutral-400 mb-3">
                 {form.eyebrow}
-              </p>
-              <h2 className="text-3xl md:text-4xl font-bold tracking-tight text-neutral-900 mb-8">
-                {form.heading}
-              </h2>
+              </Eyebrow>
+              <MaskedText
+                text={form.heading}
+                delay={0.1}
+                className="text-3xl md:text-4xl font-bold tracking-tight text-neutral-900 mb-8"
+              />
 
               {isSubmitted ? (
                 <div className="bg-neutral-100 rounded-2xl p-10 text-center space-y-4 border border-neutral-200">
-                  <CheckCircle size={48} className="text-neutral-900 mx-auto" />
+                  {/* Shares layoutId with the submit button, which morphs
+                      into this badge on success (and back on "send another"). */}
+                  <motion.div
+                    layoutId="contact-submit"
+                    style={{ borderRadius: 999 }}
+                    className="mx-auto flex h-16 w-16 items-center justify-center bg-neutral-900 text-white"
+                  >
+                    <motion.span
+                      initial={{ scale: 0, rotate: -45 }}
+                      animate={{ scale: 1, rotate: 0 }}
+                      transition={{ delay: 0.3, type: "spring", stiffness: 300, damping: 18 }}
+                    >
+                      <Check size={28} strokeWidth={3} />
+                    </motion.span>
+                  </motion.div>
                   <h3 className="text-2xl font-bold tracking-tight text-neutral-900">
                     {form.successHeading}
                   </h3>
@@ -438,10 +457,14 @@ export default function ContactSection() {
                     textarea
                   />
 
-                  <button
+                  {/* borderRadius lives in style (not rounded-xl) so Framer can
+                      tween it during the layoutId morph. */}
+                  <motion.button
                     type="submit"
+                    layoutId="contact-submit"
+                    style={{ borderRadius: 12 }}
                     disabled={isSubmitting}
-                    className="inline-flex items-center gap-3 bg-neutral-900 text-white px-8 py-4 rounded-xl font-bold uppercase text-xs tracking-[0.2em] hover:bg-neutral-700 transition-colors disabled:opacity-50 cursor-pointer"
+                    className="inline-flex items-center gap-3 bg-neutral-900 text-white px-8 py-4 font-bold uppercase text-xs tracking-[0.2em] hover:bg-neutral-700 transition-colors disabled:opacity-50 cursor-pointer"
                   >
                     {isSubmitting ? (
                       "Sending..."
@@ -451,7 +474,7 @@ export default function ContactSection() {
                         <Send size={14} />
                       </>
                     )}
-                  </button>
+                  </motion.button>
                 </form>
               )}
             </motion.div>

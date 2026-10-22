@@ -1,6 +1,7 @@
 // src/pages/ServiceDetail.jsx
+import { useRef } from "react";
 import { Link, useParams } from "react-router-dom";
-import { motion } from "framer-motion";
+import { motion, useReducedMotion, useScroll, useTransform } from "framer-motion";
 import {
   Rocket,
   Smartphone,
@@ -14,8 +15,15 @@ import {
 } from "lucide-react";
 import { services, getServiceBySlug } from "../utils/servicesData";
 import { FeatureCarousel } from "../components/ui/animated-feature-carousel";
+import ShaderCanvas from "../components/ui/shader-canvas";
+import Magnetic from "../components/ui/magnetic";
+import { MaskedText, FadeIn, ClipReveal, EASE_OUT } from "../components/ui/reveal";
+import { halftoneShader } from "../lib/shaders";
 
 const iconMap = { Rocket, Smartphone, Globe, BrainCircuit, Cloud, PenTool };
+
+// Dots on the neutral-900 CTA block.
+const CTA_DOTS = { u_base: 0.09, u_ink: 0.24, u_cell: 14 };
 
 const fadeUp = {
   hidden: { opacity: 0, y: 24 },
@@ -29,6 +37,12 @@ const fadeUp = {
 export default function ServiceDetail() {
   const { slug } = useParams();
   const service = getServiceBySlug(slug);
+
+  // Hero image drifts down slower than the page scrolls (parallax).
+  const heroRef = useRef(null);
+  const reduce = useReducedMotion();
+  const { scrollYProgress } = useScroll({ target: heroRef, offset: ["start start", "end start"] });
+  const imageY = useTransform(scrollYProgress, [0, 1], ["0%", "18%"]);
 
   // Unknown slug — graceful fallback.
   if (!service) {
@@ -55,12 +69,21 @@ export default function ServiceDetail() {
   return (
     <div className="min-h-screen bg-white">
       {/* Hero */}
-      <section className="relative h-[60vh] min-h-[420px] overflow-hidden">
-        <img
-          src={detail.image}
-          alt={service.title}
-          className="absolute inset-0 h-full w-full object-cover"
-        />
+      <section ref={heroRef} className="relative h-[60vh] min-h-[420px] overflow-hidden bg-neutral-900">
+        {/* The image drops in like a curtain over the dark base, then keeps
+            easing out of a slow zoom. Oversized (-top-[10%] h-[120%]) so the
+            parallax never reveals an edge. */}
+        <ClipReveal from="top" trigger="mount" className="absolute inset-0">
+          <motion.img
+            src={detail.image}
+            alt={service.title}
+            style={reduce ? undefined : { y: imageY }}
+            initial={{ scale: 1.15 }}
+            animate={{ scale: 1 }}
+            transition={{ duration: 2.4, ease: EASE_OUT }}
+            className="absolute inset-x-0 -top-[10%] h-[120%] w-full object-cover"
+          />
+        </ClipReveal>
         <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/50 to-black/20" />
         <div className="absolute inset-0 flex items-end">
           <div className="mx-auto w-full max-w-6xl px-6 pb-14 md:pb-20">
@@ -73,12 +96,21 @@ export default function ServiceDetail() {
             <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-white/15 text-white backdrop-blur-sm">
               <Icon className="h-6 w-6" strokeWidth={1.6} />
             </div>
-            <p className="mb-3 text-xs font-bold uppercase tracking-[0.3em] text-[var(--color-secondary)]">
+            <FadeIn
+              as="p"
+              trigger="mount"
+              delay={0.2}
+              className="mb-3 text-xs font-bold uppercase tracking-[0.3em] text-[var(--color-secondary)]"
+            >
               {detail.eyebrow}
-            </p>
-            <h1 className="max-w-3xl font-bold tracking-tight text-4xl leading-tight text-white md:text-6xl">
-              {detail.heading}
-            </h1>
+            </FadeIn>
+            <MaskedText
+              as="h1"
+              trigger="mount"
+              delay={0.3}
+              text={detail.heading}
+              className="max-w-3xl font-bold tracking-tight text-4xl leading-tight text-white md:text-6xl"
+            />
           </div>
         </div>
       </section>
@@ -191,22 +223,25 @@ export default function ServiceDetail() {
       {/* CTA */}
       <section className="px-6 pb-20 pt-4 md:pb-28">
         <div className="mx-auto max-w-6xl">
-          <div className="rounded-3xl bg-neutral-900 p-8 md:p-10">
-            <h2 className="mb-3 text-2xl font-bold tracking-tight text-white md:text-3xl">
+          <div className="relative overflow-hidden rounded-3xl bg-neutral-900 p-8 md:p-10">
+            <ShaderCanvas fragment={halftoneShader} uniforms={CTA_DOTS} />
+            <h2 className="relative mb-3 text-2xl font-bold tracking-tight text-white md:text-3xl">
               Ready to get started?
             </h2>
-            <p className="mb-6 max-w-lg text-neutral-300">
+            <p className="relative mb-6 max-w-lg text-neutral-300">
               Let's talk about your project and how {service.title.toLowerCase()} can
               move it forward.
             </p>
-            <Link
-              to="/"
-              state={{ scrollTo: "contact" }}
-              className="inline-flex items-center gap-2 rounded-full bg-white px-6 py-3 text-sm font-semibold text-neutral-900 transition-colors hover:bg-neutral-200"
-            >
-              Get in touch
-              <ArrowRight className="h-4 w-4" />
-            </Link>
+            <Magnetic className="relative">
+              <Link
+                to="/"
+                state={{ scrollTo: "contact" }}
+                className="inline-flex items-center gap-2 rounded-full bg-white px-6 py-3 text-sm font-semibold text-neutral-900 transition-colors hover:bg-neutral-200"
+              >
+                Get in touch
+                <ArrowRight className="h-4 w-4" />
+              </Link>
+            </Magnetic>
           </div>
         </div>
       </section>

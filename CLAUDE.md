@@ -17,7 +17,8 @@ the main way breakages surface here).
 ## Stack
 
 Vite + React 18 SPA. Tailwind CSS v3, `react-router-dom` v7 (BrowserRouter),
-`framer-motion` for animation, and icons from **two** libraries: `lucide-react`
+`framer-motion` for animation, raw WebGL1 for shaders (no three.js — see "Motion &
+shaders"), and icons from **two** libraries: `lucide-react`
 (most UI) and `react-icons` (nav tab icons + brand/social icons that lucide
 dropped, e.g. `FaInstagram`, `FaFacebookF`, `FaWhatsapp`). No TypeScript, no SSR.
 
@@ -35,6 +36,16 @@ components — add/edit it in the relevant `src/utils/*.js` file:
   `projectCategories` (used by the `/work` grid + single category filter).
 - **`contactData.js`** / **`brandConfig.js`** — contact section copy + assets, and
   global brand details (name, email, socials) reused by the footer and contact.
+- **`heroData.js`** — home hero copy + CTA buttons (`homeHero`) and the
+  `/services` + `/work` page headers (`pageHeroes`). Headlines are plain
+  sentences; they animate word by word.
+- **`aboutData.js`** — the home "Why Oakshade" manifesto line + count-up stats.
+  **Placeholder copy/numbers** — replace before launch.
+- **`techStackData.js`** — the two-row tech marquee under the hero
+  (placeholder stack; icons mapped in `tech-marquee.jsx`).
+- **Serif accents:** in any headline string, `*word*` (or `*a few words*`)
+  renders in Playfair italic via `parseAccents` in `reveal.jsx`. Used in hero,
+  page, section, contact and manifesto headings.
 
 Icons are stored as **string** `iconName` values and mapped to components locally
 in each consumer (the `iconMap` / `serviceIconMap` pattern). Keep data files free
@@ -42,17 +53,34 @@ of JSX so they stay easy to edit.
 
 ## Routing & navigation
 
-- `main.jsx` wraps `<App/>` in `<BrowserRouter>`. `App.jsx` holds the `<Routes>`,
-  a `Layout` (Header + `<Outlet/>` + Footer, shared by every page), and a
-  `ScrollToTop` helper. Pages are in `src/pages/` (`Home`, `AllServices`,
-  `ServiceDetail`, `AllWork`).
+- `main.jsx` wraps `<App/>` in `<MotionConfig reducedMotion="user">` +
+  `<BrowserRouter>`. `App.jsx` holds the `<Routes>` and a `Layout` (Header +
+  routed page + Footer, shared by every page). Pages are in `src/pages/`
+  (`Home`, `AllServices`, `ServiceDetail`, `AllWork`).
+- **Page transitions:** `Layout` renders `useOutlet()` inside
+  `<AnimatePresence mode="wait">` keyed by pathname. The scroll-to-top happens
+  in `onExitComplete` (after the old page has faded out), and is skipped when
+  `state.scrollTo` is present. Because the new page mounts only after the exit,
+  the header scrollspy retries for ~2s until Home's sections exist.
+- **Smooth scrolling (Lenis)** starts in `main.jsx`. It owns the scroll
+  position, so a raw `window.scrollTo` / `scrollIntoView` gets overridden.
+  **Always** use the helpers in `src/lib/smooth-scroll.js`: `scrollToSection(id)`,
+  `resetScroll()`, `lockScroll()` / `unlockScroll()`. Horizontal scrollers
+  (carousels, tab strips) carry `data-lenis-prevent-horizontal`; inner vertical
+  scrollers carry `data-lenis-prevent`. Off under reduced motion.
+- **First-visit intro** (`intro.jsx` + `src/lib/intro.js`): plays once per
+  browser session, only when landing on `/`, never under reduced motion. The
+  hero reads `introPending()` to delay its reveal until the curtain lifts.
+- **"View" cursor** (`view-cursor.jsx`): add `data-cursor="View"` to any
+  element to show the trailing disc over it (mouse/trackpad only).
+- `<main>` uses `overflow-x-clip`, **not** `overflow-hidden` — `hidden` makes it
+  a scroll container and silently breaks every `position: sticky` inside.
 - **Home is a single scroll page.** Its sections carry the ids `home`, `services`,
   `process`, `work`, `team`, `contact`. The header's scrollspy
   (`IntersectionObserver`) highlights the active section.
 - **Cross-page section links** work via router state: navigate with
   `navigate("/", { state: { scrollTo: "contact" } })` (or `<Link state=...>`), and
   `Home` reads `location.state.scrollTo` on mount to smooth-scroll there.
-  `ScrollToTop` skips its top-reset when `state.scrollTo` is present.
 - The header computes the active tab from the route (`/services*` → services,
   `/work` → work) and otherwise defers to the scrollspy result.
 - **Deployment gotcha:** BrowserRouter needs the host to rewrite unknown paths to
@@ -92,6 +120,41 @@ use `font-bold tracking-tight`. Conventions:
   by the home Services and Work sections.
 - **`animated-tabs.jsx`** — the tab bar used inside the home "Our Work" section,
   where each tab renders a `ProjectSlider` (the "N of M" entry slider).
+- **`page-hero.jsx`** — the centred hero for `/services` and `/work`.
+
+## Motion & shaders
+
+- **`reveal.jsx`** — `MaskedText` (words slide up out of masks) and `FadeIn`.
+  `trigger="mount"` for heroes, default plays once on scroll into view. Put
+  `whileInView` on an untransformed wrapper, never on an element that starts
+  translated out of an `overflow-hidden` mask — it never "intersects".
+  Also `Eyebrow` (label led by a hairline rule that draws in) and
+  `ClipReveal` (clip-path curtain for images; it watches visibility on an
+  unclipped wrapper because a fully clipped element never counts as in view).
+- **`magnetic.jsx`** — wrap pill CTAs so they lean toward the mouse.
+- **`spotlight.jsx`** — mouse-following glow on a card's border
+  (`/services` + `/work` cards).
+- Home section seams: the hero fades into white at its bottom, Process fades
+  in from white, and Work is a near-black sheet with a curved top that
+  overlaps Process (`-mt` + `rounded-t`). The footer has the same curved top
+  and an oversized wordmark (`brandConfig.wordmark`).
+- Don't put Tailwind `hover:-translate-*` on a motion element — Framer's
+  inline transform wins. Use `whileHover={{ y: -4 }}` instead.
+- **`shader-canvas.jsx`** — animated fragment-shader background that fills its
+  positioned parent (give the parent a matching CSS bg as the fallback). Pauses
+  offscreen; single still frame under reduced motion. Built-in uniforms:
+  `u_time`, `u_resolution`, `u_dpr`, `u_mouse`, `u_hover`.
+- **`shader-image.jsx`** — `<img>` replacement that liquid-wipes between `src`
+  values (Our Work slider). Remote images need CORS headers to become textures
+  (Unsplash and same-origin are fine); otherwise the plain `<img>` underneath
+  shows.
+- GLSL lives in `src/lib/shaders.js` (`smokeShader`, `halftoneShader`,
+  `imageTransitionShader`); WebGL plumbing in `src/lib/webgl.js`. Keep shaders
+  monochrome. Used by: home hero + page heroes (smoke), footer + service CTA
+  (halftone).
+- Film grain is a `body::after` overlay in `index.css`.
+- The header hides on scroll-down / returns on scroll-up and draws a scroll
+  progress hairline at the top.
 
 ## Assets & known gaps
 

@@ -2,6 +2,7 @@
 import { cn } from "../../lib/utils";
 import { ArrowRight, Code2, Copy, Rocket, Zap } from "lucide-react";
 import { useState } from "react";
+import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 
 export default function CardFlip({
@@ -22,13 +23,13 @@ export default function CardFlip({
       onMouseEnter={() => setIsFlipped(true)}
       onMouseLeave={() => setIsFlipped(false)}
     >
-      <div
-        className={cn(
-          "relative h-full w-full",
-          "[transform-style:preserve-3d]",
-          "transition-all duration-700",
-          isFlipped ? "[transform:rotateY(180deg)]" : "[transform:rotateY(0deg)]"
-        )}
+      {/* Spring-driven flip: a little overshoot and settle gives the card
+          weight, where the old CSS transition just slid to 180°. */}
+      <motion.div
+        className="relative h-full w-full [transform-style:preserve-3d]"
+        initial={false}
+        animate={{ rotateY: isFlipped ? 180 : 0 }}
+        transition={{ type: "spring", stiffness: 140, damping: 16, mass: 0.9 }}
       >
         {/* Front of card */}
         <div
@@ -215,7 +216,7 @@ export default function CardFlip({
             </Link>
           </div>
         </div>
-      </div>
+      </motion.div>
     </div>
   );
 }

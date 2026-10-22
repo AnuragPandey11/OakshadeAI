@@ -6,34 +6,40 @@ import { cn } from "../../lib/utils";
 export const ProductHighlightCard = React.forwardRef(
   ({ className, categoryIcon, category, title, description, imageSrc, imageAlt, media, ...props }, ref) => {
     // --- 3D tilt ---
-    const mouseX = useMotionValue(0);
-    const mouseY = useMotionValue(0);
+    // Pointer position as a 0–1 fraction of the card. It rests at the centre
+    // (0.5, 0.5) = no tilt; resting at 0,0 used to leave every card tipped
+    // toward its top-left corner when the mouse wasn't on it.
+    const mouseX = useMotionValue(0.5);
+    const mouseY = useMotionValue(0.5);
+    const hover = useMotionValue(0);
 
     const handleMouseMove = ({ clientX, clientY, currentTarget }) => {
-      const { left, top } = currentTarget.getBoundingClientRect();
-      mouseX.set(clientX - left);
-      mouseY.set(clientY - top);
+      const { left, top, width, height } = currentTarget.getBoundingClientRect();
+      mouseX.set((clientX - left) / width);
+      mouseY.set((clientY - top) / height);
+      hover.set(1);
     };
 
-    const rotateX = useTransform(mouseY, [0, 350], [10, -10]);
-    const rotateY = useTransform(mouseX, [0, 350], [-10, 10]);
+    const rotateX = useTransform(mouseY, [0, 1], [10, -10]);
+    const rotateY = useTransform(mouseX, [0, 1], [-10, 10]);
 
     const springConfig = { stiffness: 300, damping: 20 };
     const springRotateX = useSpring(rotateX, springConfig);
     const springRotateY = useSpring(rotateY, springConfig);
 
-    // --- Glow follow ---
-    const glowX = useTransform(mouseX, [0, 350], [0, 100]);
-    const glowY = useTransform(mouseY, [0, 350], [0, 100]);
-    const glowOpacity = useTransform(mouseX, [0, 350], [0, 0.5]);
+    // --- Glow follow (fades in on hover, out on leave) ---
+    const glowX = useTransform(mouseX, [0, 1], [0, 100]);
+    const glowY = useTransform(mouseY, [0, 1], [0, 100]);
+    const glowOpacity = useSpring(useTransform(hover, [0, 1], [0, 0.6]), springConfig);
 
     return (
       <motion.div
         ref={ref}
         onMouseMove={handleMouseMove}
         onMouseLeave={() => {
-          mouseX.set(0);
-          mouseY.set(0);
+          mouseX.set(0.5);
+          mouseY.set(0.5);
+          hover.set(0);
         }}
         style={{
           rotateX: springRotateX,

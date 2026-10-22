@@ -11,7 +11,13 @@ import {
   FaEnvelope,
 } from "react-icons/fa";
 import { FiMenu, FiX, FiChevronDown, FiChevronRight } from "react-icons/fi";
-import { AnimatePresence, motion } from "framer-motion";
+import {
+  AnimatePresence,
+  motion,
+  useMotionValueEvent,
+  useScroll,
+  useSpring,
+} from "framer-motion";
 import {
   Rocket,
   Smartphone,
@@ -22,6 +28,7 @@ import {
   LayoutGrid,
 } from "lucide-react";
 import { services } from "../../utils/servicesData";
+import { lockScroll, scrollToSection, unlockScroll } from "../../lib/smooth-scroll";
 
 // Maps a service's string `iconName` to its lucide icon component.
 const serviceIconMap = { Rocket, Smartphone, Globe, BrainCircuit, Cloud, PenTool };
@@ -65,6 +72,22 @@ export default function Header() {
   const [servicesOpen, setServicesOpen] = useState(false); // mobile services accordion
   const [scrollActive, setScrollActive] = useState("home"); // scrollspy result
 
+  // Hide the nav while scrolling down, bring it back on any scroll up. Once
+  // past the top it also tucks up and turns more opaque.
+  const { scrollY, scrollYProgress } = useScroll();
+  const [hidden, setHidden] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+  useMotionValueEvent(scrollY, "change", (latest) => {
+    const delta = latest - (scrollY.getPrevious() ?? 0);
+    setScrolled(latest > 40);
+    if (latest < 160) setHidden(false);
+    else if (delta > 6) setHidden(true);
+    else if (delta < -6) setHidden(false);
+  });
+  const progress = useSpring(scrollYProgress, { stiffness: 200, damping: 40, restDelta: 0.001 });
+  const barTransition = { duration: 0.35, ease: [0.22, 1, 0.36, 1] };
+  const pillTone = scrolled ? "bg-white/60" : "bg-white/25";
+
   // On a services / work page, force that nav item active; otherwise defer to
   // the scrollspy result from the home page.
   const routeActive = pathname.startsWith("/services")
@@ -85,11 +108,7 @@ export default function Header() {
       navigate("/", { state: { scrollTo: id } });
       return;
     }
-    if (id === "home") {
-      window.scrollTo({ top: 0, behavior: "smooth" });
-    } else {
-      document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" });
-    }
+    scrollToSection(id);
   };
 
   // Dropdown items for the "Our Services" tab (built from the data file).
@@ -116,38 +135,61 @@ export default function Header() {
 
   // Lock body scroll while the mobile menu is open.
   useEffect(() => {
-    document.body.style.overflow = open ? "hidden" : "";
-    return () => {
-      document.body.style.overflow = "";
-    };
+    if (!open) return;
+    lockScroll();
+    return unlockScroll;
   }, [open]);
 
   // Scrollspy — only relevant on the home page (the sections only exist there).
+  // Page transitions mount Home only after the previous page has faded out,
+  // so keep looking for its sections for a moment (~2s of frames).
   useEffect(() => {
     if (pathname !== "/") return;
-    const sections = baseTabs
-      .map((t) => document.getElementById(t.id))
-      .filter(Boolean);
-    if (!sections.length) return;
+    let observer;
+    let raf = 0;
 
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) setScrollActive(entry.target.id);
-        });
-      },
-      { rootMargin: "-45% 0px -45% 0px", threshold: 0 }
-    );
+    const attach = (tries = 0) => {
+      const sections = baseTabs
+        .map((t) => document.getElementById(t.id))
+        .filter(Boolean);
+      if (!sections.length) {
+        if (tries < 120) raf = requestAnimationFrame(() => attach(tries + 1));
+        return;
+      }
+      observer = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) setScrollActive(entry.target.id);
+          });
+        },
+        { rootMargin: "-45% 0px -45% 0px", threshold: 0 }
+      );
+      sections.forEach((s) => observer.observe(s));
+    };
+    attach();
 
-    sections.forEach((s) => observer.observe(s));
-    return () => observer.disconnect();
+    return () => {
+      cancelAnimationFrame(raf);
+      observer?.disconnect();
+    };
   }, [pathname]);
 
   return (
     <>
+      {/* ---- Scroll progress — hairline across the very top ---- */}
+      <motion.div
+        aria-hidden="true"
+        style={{ scaleX: progress }}
+        className="fixed inset-x-0 top-0 z-[55] h-[2px] origin-left bg-neutral-900"
+      />
+
       {/* ---- Desktop: logo + fluid tabs together inside one glass pill ---- */}
-      <header className="fixed inset-x-0 top-10 z-50 hidden justify-center lg:flex">
-        <div className="flex items-center gap-4 rounded-full border border-white/40 bg-white/25 py-1.5 pl-6 pr-6 shadow-xl shadow-black/10 backdrop-blur-xl backdrop-saturate-150">
+      <motion.header
+        animate={{ y: hidden ? -140 : scrolled ? -20 : 0 }}
+        transition={barTransition}
+        className="fixed inset-x-0 top-10 z-50 hidden justify-center lg:flex"
+      >
+        <div className={`flex items-center gap-4 rounded-full border border-white/40 ${pillTone} py-1.5 pl-6 pr-6 shadow-xl shadow-black/10 backdrop-blur-xl backdrop-saturate-150 transition-colors duration-300`}>
           <button type="button" onClick={() => goToSection("home")} aria-label="Home" className="shrink-0">
             {/* h-12 is the tallest mark the pill fits without growing it. */}
             <Logo markClassName="h-12" />
@@ -155,11 +197,15 @@ export default function Header() {
           <span className="ml-6 h-7 w-px bg-neutral-500/30" />
           <FluidTabs tabs={tabs} activeTab={active} onSelect={goToSection} />
         </div>
-      </header>
+      </motion.header>
 
       {/* ---- Mobile: logo + hamburger together inside one glass pill ---- */}
-      <div className="fixed inset-x-0 top-0 z-50 px-4 pt-3 lg:hidden">
-        <div className="flex items-center justify-between gap-3 rounded-full border border-white/40 bg-white/25 py-2 pl-4 pr-2 shadow-xl shadow-black/10 backdrop-blur-xl backdrop-saturate-150">
+      <motion.div
+        animate={{ y: hidden && !open ? "-120%" : 0 }}
+        transition={barTransition}
+        className="fixed inset-x-0 top-0 z-50 px-4 pt-3 lg:hidden"
+      >
+        <div className={`flex items-center justify-between gap-3 rounded-full border border-white/40 ${pillTone} py-2 pl-4 pr-2 shadow-xl shadow-black/10 backdrop-blur-xl backdrop-saturate-150 transition-colors duration-300`}>
           <button type="button" onClick={() => goToSection("home")} aria-label="Home" className="shrink-0">
             <Logo markClassName="h-10" textClassName="text-[11px]" />
           </button>
@@ -172,7 +218,7 @@ export default function Header() {
             <FiMenu size={24} />
           </button>
         </div>
-      </div>
+      </motion.div>
 
       {/* ---- Mobile: full-screen overlay menu (monochrome) ---- */}
       <AnimatePresence>
@@ -200,7 +246,7 @@ export default function Header() {
 
             {/* Left-aligned row list: label on the left, a round chevron button
                 on the right, hairline dividers between rows. */}
-            <nav className="flex-1 overflow-y-auto px-8 pt-10">
+            <nav data-lenis-prevent className="flex-1 overflow-y-auto px-8 pt-10">
               {tabs.map((t, i) => {
                 const isServices = t.id === "services";
                 return (

@@ -6,6 +6,14 @@ import { ArrowRight } from "lucide-react";
 // import { FaInstagram, FaFacebookF, FaLinkedinIn } from "react-icons/fa";
 import { brandConfig } from "../../utils/brandConfig";
 import { services } from "../../utils/servicesData";
+import ShaderCanvas from "./shader-canvas";
+import Magnetic from "./magnetic";
+import { EASE_OUT } from "./reveal";
+import { motion } from "framer-motion";
+import { halftoneShader } from "../../lib/shaders";
+
+// Faint dot matrix over neutral-950 (#0a0a0a), densest bottom-right.
+const FOOTER_DOTS = { u_base: 0.039, u_ink: 0.13, u_cell: 14 };
 
 // const socialLinks = [
 //   { label: "Instagram", href: brandConfig.socialMedia.instagram, Icon: FaInstagram },
@@ -33,8 +41,9 @@ const linkClass =
 
 export default function Footer() {
   return (
-    <footer className="w-full bg-neutral-950 text-neutral-400">
-      <div className="mx-auto max-w-6xl px-6 py-16 md:py-20">
+    <footer className="relative w-full overflow-hidden rounded-t-[2.5rem] bg-neutral-950 text-neutral-400 md:rounded-t-[4rem]">
+      <ShaderCanvas fragment={halftoneShader} uniforms={FOOTER_DOTS} />
+      <div className="relative mx-auto max-w-6xl px-6 pb-10 pt-16 md:pt-20">
         <div className="grid gap-12 md:grid-cols-2 lg:grid-cols-[1.6fr_1fr_1fr_1.2fr]">
           {/* Brand */}
           <div>
@@ -122,14 +131,16 @@ export default function Footer() {
               */}
             </ul>
 
-            <Link
-              to="/"
-              state={{ scrollTo: "contact" }}
-              className="group mt-6 inline-flex items-center gap-2 rounded-full bg-white px-5 py-2.5 text-sm font-semibold text-neutral-900 transition-colors hover:bg-neutral-200"
-            >
-              Start a project
-              <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
-            </Link>
+            <Magnetic className="mt-6">
+              <Link
+                to="/"
+                state={{ scrollTo: "contact" }}
+                className="group inline-flex items-center gap-2 rounded-full bg-white px-5 py-2.5 text-sm font-semibold text-neutral-900 transition-colors hover:bg-neutral-200"
+              >
+                Start a project
+                <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+              </Link>
+            </Magnetic>
           </div>
         </div>
 
@@ -155,6 +166,19 @@ export default function Footer() {
           </div>
         </div>
       </div>
+
+      {/* Oversized wordmark that rises into view at the very end of the page,
+          cropped by the footer's bottom edge. Decorative. */}
+      <motion.div
+        aria-hidden="true"
+        initial={{ y: "40%", opacity: 0 }}
+        whileInView={{ y: "0%", opacity: 1 }}
+        viewport={{ once: true, amount: 0.2 }}
+        transition={{ duration: 1.4, ease: EASE_OUT }}
+        className="pointer-events-none relative -mb-[3vw] select-none whitespace-nowrap bg-gradient-to-b from-neutral-700 to-neutral-950 bg-clip-text text-center text-[15vw] font-bold leading-[0.85] tracking-tighter text-transparent"
+      >
+        {brandConfig.wordmark}
+      </motion.div>
     </footer>
   );
 }
