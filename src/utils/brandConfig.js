@@ -7,6 +7,8 @@
 export const brandConfig = {
   name: "Oakshade AI",
   tagline: "Transforming ideas into digital reality",
+  // Oversized type across the bottom of the footer.
+  wordmark: "OAKSHADE",
   email: "oakshade.business@gmail.com",
   // NOT RENDERED ANYWHERE RIGHT NOW: phone, whatsapp, address, hours and
   // socialMedia are placeholders kept for when those channels go live. The

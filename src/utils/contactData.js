@@ -12,7 +12,7 @@ export const contactData = {
       "https://images.unsplash.com/photo-1497366754035-f200968a6e72?q=80&w=1600&auto=format&fit=crop",
     imageAlt: "Oakshade AI workspace",
     eyebrow: "Get in touch",
-    heading: "Let's build something remarkable together",
+    heading: "Let's build something *remarkable* together", // *word* = serif italic accent
     subheading:
       "Tell us about your project and we'll get back to you within one business day.",
   },
@@ -43,7 +43,7 @@ export const contactData = {
 
   form: {
     eyebrow: "Send a message",
-    heading: "Tell us about your project",
+    heading: "Tell us about your *project*",
     submitLabel: "Send message",
     // Submitting hands the message to the visitor's own email app via a
     // mailto: link — nothing is sent from the site itself, so the success

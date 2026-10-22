@@ -3,6 +3,10 @@ import { useMemo, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ArrowUpRight } from "lucide-react";
 import { allProjects, projectCategories } from "../utils/projectsData";
+import { pageHeroes } from "../utils/heroData";
+import PageHero from "../components/ui/page-hero";
+import { ClipReveal } from "../components/ui/reveal";
+import { Spotlight, trackSpotlight } from "../components/ui/spotlight";
 
 export default function AllWork() {
   const [category, setCategory] = useState("All");
@@ -18,36 +22,31 @@ export default function AllWork() {
   return (
     <div className="min-h-screen bg-white">
       {/* Hero */}
-      <section className="bg-[var(--color-neutral-cream)] px-6 pb-14 pt-32 md:pb-16 md:pt-40">
-        <div className="mx-auto max-w-6xl text-center">
-          <p className="mb-3 text-sm font-semibold uppercase tracking-[0.2em] text-[var(--color-secondary)]">
-            Our Work
-          </p>
-          <h1 className="mb-5 font-bold tracking-tight text-4xl leading-tight text-neutral-900 md:text-6xl">
-            Selected projects
-          </h1>
-          <p className="mx-auto max-w-2xl text-base leading-relaxed text-neutral-500 md:text-lg">
-            A look at the products, platforms, and experiences we've helped bring
-            to life across industries.
-          </p>
-        </div>
-      </section>
+      <PageHero {...pageHeroes.work} className="pb-14 md:pb-16" />
 
       {/* Filter */}
       <section className="pt-12">
-        <div className="mx-auto flex max-w-6xl flex-nowrap items-center gap-2 overflow-x-auto px-6 pb-2 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:flex-wrap sm:justify-center sm:overflow-visible sm:pb-0">
+        <div data-lenis-prevent-horizontal className="mx-auto flex max-w-6xl flex-nowrap items-center gap-2 overflow-x-auto px-6 pb-2 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:flex-wrap sm:justify-center sm:overflow-visible sm:pb-0">
           {projectCategories.map((cat) => (
             <button
               key={cat}
               type="button"
               onClick={() => setCategory(cat)}
-              className={`shrink-0 whitespace-nowrap rounded-full px-5 py-2 text-sm font-medium transition-colors ${
+              className={`relative shrink-0 whitespace-nowrap rounded-full border px-5 py-2 text-sm font-medium transition-colors duration-300 ${
                 category === cat
-                  ? "bg-neutral-900 text-white"
-                  : "border border-neutral-200 bg-white text-neutral-600 hover:border-neutral-400 hover:text-neutral-900"
+                  ? "border-transparent text-white"
+                  : "border-neutral-200 bg-white text-neutral-600 hover:border-neutral-400 hover:text-neutral-900"
               }`}
             >
-              {cat}
+              {/* The dark pill slides between filters (shared layout). */}
+              {category === cat && (
+                <motion.span
+                  layoutId="work-filter-pill"
+                  transition={{ type: "spring", stiffness: 380, damping: 32 }}
+                  className="absolute inset-0 rounded-full bg-neutral-900"
+                />
+              )}
+              <span className="relative">{cat}</span>
             </button>
           ))}
         </div>
@@ -70,15 +69,22 @@ export default function AllWork() {
                 initial={{ opacity: 0, scale: 0.96 }}
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0, scale: 0.96 }}
+                // Lift via whileHover: Framer's inline transform on this motion
+                // element overrode the old Tailwind hover:-translate-y-1.
+                whileHover={{ y: -4 }}
                 transition={{ duration: 0.3, ease: "easeOut" }}
-                className="group flex flex-col overflow-hidden rounded-2xl border border-neutral-200 bg-white shadow-sm transition-all hover:-translate-y-1 hover:shadow-xl"
+                onPointerMove={trackSpotlight}
+                className="group relative flex flex-col rounded-2xl border border-neutral-200 bg-white shadow-sm transition-shadow hover:shadow-xl"
               >
-                <div className="relative aspect-[16/10] overflow-hidden">
-                  <img
-                    src={project.image}
-                    alt={project.title}
-                    className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
-                  />
+                <Spotlight />
+                <div data-cursor="View" className="relative aspect-[16/10] overflow-hidden rounded-t-2xl">
+                  <ClipReveal className="h-full w-full">
+                    <img
+                      src={project.image}
+                      alt={project.title}
+                      className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                    />
+                  </ClipReveal>
                   <span className="absolute left-3 top-3 rounded-full bg-black/60 px-3 py-1 text-xs font-medium text-white backdrop-blur-sm">
                     {project.category}
                   </span>
@@ -88,7 +94,7 @@ export default function AllWork() {
                     </span>
                   )}
                 </div>
-                <div className="flex flex-1 flex-col p-6">
+                <div className="relative flex flex-1 flex-col p-6">
                   <h3 className="mb-2 text-lg font-bold tracking-tight text-neutral-900">
                     {project.title}
                   </h3>

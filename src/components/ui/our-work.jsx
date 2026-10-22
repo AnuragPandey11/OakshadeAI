@@ -4,43 +4,36 @@ import { motion, AnimatePresence } from "framer-motion";
 import { ArrowUpRight, ChevronLeft, ChevronRight } from "lucide-react";
 import { AnimatedTabs } from "./animated-tabs";
 import SectionHeading from "./section-heading";
+import ShaderImage from "./shader-image";
+import { ClipReveal } from "./reveal";
 import { projectGroups } from "../../utils/projectsData";
 
-// A single project card (shared structure across every entry).
-function ProjectContent({ title, description, image, link, category, status, meta }) {
+// Text half of a project entry (the image is rendered by ProjectSlider so it
+// can persist across entries and wipe between them).
+function ProjectText({ title, description, link, category, status, meta }) {
   return (
-    <div className="grid h-full grid-cols-1 items-stretch gap-6 md:grid-cols-[7fr_3fr]">
-      {/* Image — 70% */}
-      <img
-        src={image}
-        alt={title}
-        className="h-64 w-full rounded-lg border-none object-cover shadow-[0_0_20px_rgba(0,0,0,0.2)] md:h-[420px]"
-      />
-
-      {/* Text — 30% */}
-      <div className="flex flex-col justify-center gap-3">
-        {category && (
-          <span className="text-xs font-semibold uppercase tracking-[0.2em] text-white/50">
-            {category}
-          </span>
-        )}
-        <h3 className="text-2xl font-bold tracking-tight text-white">{title}</h3>
-        {status && (
-          <span className="inline-flex w-fit items-center rounded-full border border-white/20 bg-white/10 px-3 py-1 text-xs font-medium text-white/70">
-            {status}
-          </span>
-        )}
-        <p className="text-sm leading-relaxed text-gray-300">{description}</p>
-        {meta && <p className="text-xs text-white/50">{meta}</p>}
-        <a
-          href={link}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="mt-2 inline-flex w-fit items-center gap-2 rounded-full bg-white px-5 py-2.5 text-sm font-semibold text-black transition-colors hover:bg-neutral-200"
-        >
-          Visit Project <ArrowUpRight className="h-4 w-4" />
-        </a>
-      </div>
+    <div className="flex h-full flex-col justify-center gap-3">
+      {category && (
+        <span className="text-xs font-semibold uppercase tracking-[0.2em] text-white/50">
+          {category}
+        </span>
+      )}
+      <h3 className="text-2xl font-bold tracking-tight text-white">{title}</h3>
+      {status && (
+        <span className="inline-flex w-fit items-center rounded-full border border-white/20 bg-white/10 px-3 py-1 text-xs font-medium text-white/70">
+          {status}
+        </span>
+      )}
+      <p className="text-sm leading-relaxed text-gray-300">{description}</p>
+      {meta && <p className="text-xs text-white/50">{meta}</p>}
+      <a
+        href={link}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="mt-2 inline-flex w-fit items-center gap-2 rounded-full bg-white px-5 py-2.5 text-sm font-semibold text-black transition-colors hover:bg-neutral-200"
+      >
+        Visit Project <ArrowUpRight className="h-4 w-4" />
+      </a>
     </div>
   );
 }
@@ -62,22 +55,43 @@ function ProjectSlider({ entries }) {
 
   return (
     <div className="flex h-full flex-col">
-      {/* Card */}
-      <div className="relative flex-1">
-        <AnimatePresence mode="wait" custom={dir}>
-          <motion.div
-            key={current.id}
-            custom={dir}
-            variants={slideVariants}
-            initial="enter"
-            animate="center"
-            exit="exit"
-            transition={{ duration: 0.35, ease: "easeInOut" }}
-            className="h-full"
+      {/* Card — image 70% (WebGL wipe between entries), text 30% (slides) */}
+      <div className="grid flex-1 grid-cols-1 items-stretch gap-6 md:grid-cols-[7fr_3fr]">
+        <ClipReveal className="h-64 w-full md:h-[420px]">
+          {/* The image opens the project too (same link as "Visit Project");
+              hovering it shows the "View" cursor. */}
+          <a
+            href={current.link}
+            target="_blank"
+            rel="noopener noreferrer"
+            data-cursor="View"
+            aria-label={`Visit ${current.title}`}
+            className="block h-full w-full"
           >
-            <ProjectContent {...current} />
-          </motion.div>
-        </AnimatePresence>
+            <ShaderImage
+              src={current.image}
+              alt={current.title}
+              direction={dir}
+              className="h-full w-full rounded-lg shadow-[0_0_20px_rgba(0,0,0,0.2)]"
+            />
+          </a>
+        </ClipReveal>
+        <div className="relative">
+          <AnimatePresence mode="wait" custom={dir}>
+            <motion.div
+              key={current.id}
+              custom={dir}
+              variants={slideVariants}
+              initial="enter"
+              animate="center"
+              exit="exit"
+              transition={{ duration: 0.35, ease: "easeInOut" }}
+              className="h-full"
+            >
+              <ProjectText {...current} />
+            </motion.div>
+          </AnimatePresence>
+        </div>
       </div>
 
       {/* Controls — only when a tab holds more than one entry */}
@@ -135,14 +149,20 @@ const tabs = projectGroups.map((group) => ({
 
 export default function OurWork() {
   return (
-    <section id="work" className="w-full scroll-mt-24 bg-white">
+    // A near-black sheet with a curved top that slides over the end of the
+    // Process section (-mt), giving the image wipe a dark stage.
+    <section
+      id="work"
+      className="relative z-10 -mt-14 w-full scroll-mt-24 rounded-t-[2.5rem] bg-neutral-950 md:-mt-20 md:rounded-t-[4rem]"
+    >
       <div className="mx-auto max-w-6xl px-6 py-20 md:py-28">
         {/* Left: heading — Right: all-work button */}
         <SectionHeading
           eyebrow="Our Work"
-          title="Products we've designed, built, and shipped"
+          title="Products we've designed, built, and *shipped*."
           ctaLabel="All our work"
           ctaTo="/work"
+          tone="dark"
         />
 
         <AnimatedTabs tabs={tabs} className="mx-auto max-w-5xl" />

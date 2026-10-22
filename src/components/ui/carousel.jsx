@@ -56,8 +56,11 @@ export default function Carousel({ children, itemClassName = "" }) {
   return (
     <div className="relative">
       {/* Track */}
+      {/* data-lenis-prevent-horizontal: sideways swipes stay native (Lenis
+          only eases vertical wheel scrolling). */}
       <div
         ref={trackRef}
+        data-lenis-prevent-horizontal
         className="flex snap-x snap-mandatory gap-6 overflow-x-auto scroll-smooth px-1 pb-2 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
       >
         {slides.map((child, i) => (
