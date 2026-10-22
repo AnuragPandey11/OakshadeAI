@@ -36,6 +36,8 @@ components — add/edit it in the relevant `src/utils/*.js` file:
   `projectCategories` (used by the `/work` grid + single category filter).
 - **`contactData.js`** / **`brandConfig.js`** — contact section copy + assets, and
   global brand details (name, email, socials) reused by the footer and contact.
+  The contact section is the form plus one dark "What happens next" card
+  (`nextSteps`), whose footer lists the direct channels from `infoCards`.
 - **`heroData.js`** — home hero copy + CTA buttons (`homeHero`) and the
   `/services` + `/work` page headers (`pageHeroes`). Headlines are plain
   sentences; they animate word by word.
@@ -56,7 +58,9 @@ of JSX so they stay easy to edit.
 - `main.jsx` wraps `<App/>` in `<MotionConfig reducedMotion="user">` +
   `<BrowserRouter>`. `App.jsx` holds the `<Routes>` and a `Layout` (Header +
   routed page + Footer, shared by every page). Pages are in `src/pages/`
-  (`Home`, `AllServices`, `ServiceDetail`, `AllWork`).
+  (`Home`, `AllServices`, `ServiceDetail`, `AllWork`, `NotFound`). `NotFound` is
+  the `path="*"` catch-all and is also returned by `ServiceDetail` for an
+  unknown slug; its copy is `notFoundHero` in `heroData.js`.
 - **Page transitions:** `Layout` renders `useOutlet()` inside
   `<AnimatePresence mode="wait">` keyed by pathname. The scroll-to-top happens
   in `onExitComplete` (after the old page has faded out), and is skipped when
@@ -132,6 +136,12 @@ use `font-bold tracking-tight`. Conventions:
   `ClipReveal` (clip-path curtain for images; it watches visibility on an
   unclipped wrapper because a fully clipped element never counts as in view).
 - **`magnetic.jsx`** — wrap pill CTAs so they lean toward the mouse.
+- **`roll-label.jsx`** — wrap a button's text in `<RollLabel>` so it rolls up
+  to a fresh copy on hover (the button needs the `group` class). Used on every
+  pill CTA.
+- **`.link-underline`** (in `index.css`) — underline that draws in from the
+  left on hover; used on footer links, the contact channel and card "Learn
+  more" / "View project" labels (it also triggers on a `.group` parent hover).
 - **`spotlight.jsx`** — mouse-following glow on a card's border
   (`/services` + `/work` cards).
 - Home section seams: the hero fades into white at its bottom, Process fades

@@ -8,6 +8,7 @@ import Home from "./pages/Home.jsx";
 import AllServices from "./pages/AllServices.jsx";
 import ServiceDetail from "./pages/ServiceDetail.jsx";
 import AllWork from "./pages/AllWork.jsx";
+import NotFound from "./pages/NotFound.jsx";
 import Intro from "./components/ui/intro.jsx";
 import ViewCursor from "./components/ui/view-cursor.jsx";
 import { resetScroll } from "./lib/smooth-scroll";
@@ -63,6 +64,7 @@ export default function App() {
         <Route path="/services" element={<AllServices />} />
         <Route path="/services/:slug" element={<ServiceDetail />} />
         <Route path="/work" element={<AllWork />} />
+        <Route path="*" element={<NotFound />} />
       </Route>
     </Routes>
   );

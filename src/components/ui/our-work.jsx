@@ -5,6 +5,7 @@ import { ArrowUpRight, ChevronLeft, ChevronRight } from "lucide-react";
 import { AnimatedTabs } from "./animated-tabs";
 import SectionHeading from "./section-heading";
 import ShaderImage from "./shader-image";
+import RollLabel from "./roll-label";
 import { ClipReveal } from "./reveal";
 import { projectGroups } from "../../utils/projectsData";
 
@@ -30,9 +31,10 @@ function ProjectText({ title, description, link, category, status, meta }) {
         href={link}
         target="_blank"
         rel="noopener noreferrer"
-        className="mt-2 inline-flex w-fit items-center gap-2 rounded-full bg-white px-5 py-2.5 text-sm font-semibold text-black transition-colors hover:bg-neutral-200"
+        className="group mt-2 inline-flex w-fit items-center gap-2 rounded-full bg-white px-5 py-2.5 text-sm font-semibold text-black transition-colors hover:bg-neutral-200"
       >
-        Visit Project <ArrowUpRight className="h-4 w-4" />
+        <RollLabel>Visit Project</RollLabel>
+        <ArrowUpRight className="h-4 w-4 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
       </a>
     </div>
   );

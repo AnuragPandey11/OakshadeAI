@@ -15,8 +15,10 @@ import {
 } from "lucide-react";
 import { services, getServiceBySlug } from "../utils/servicesData";
 import { FeatureCarousel } from "../components/ui/animated-feature-carousel";
+import NotFound from "./NotFound.jsx";
 import ShaderCanvas from "../components/ui/shader-canvas";
 import Magnetic from "../components/ui/magnetic";
+import RollLabel from "../components/ui/roll-label";
 import { MaskedText, FadeIn, ClipReveal, EASE_OUT } from "../components/ui/reveal";
 import { halftoneShader } from "../lib/shaders";
 
@@ -44,23 +46,8 @@ export default function ServiceDetail() {
   const { scrollYProgress } = useScroll({ target: heroRef, offset: ["start start", "end start"] });
   const imageY = useTransform(scrollYProgress, [0, 1], ["0%", "18%"]);
 
-  // Unknown slug — graceful fallback.
-  if (!service) {
-    return (
-      <div className="flex min-h-screen flex-col items-center justify-center gap-4 px-6 text-center">
-        <h1 className="font-bold tracking-tight text-3xl text-neutral-900">Service not found</h1>
-        <p className="text-neutral-500">
-          The service you're looking for doesn't exist.
-        </p>
-        <Link
-          to="/services"
-          className="inline-flex items-center gap-2 rounded-full bg-neutral-900 px-6 py-3 text-sm font-semibold text-white hover:bg-neutral-700"
-        >
-          <ArrowLeft className="h-4 w-4" /> Back to all services
-        </Link>
-      </div>
-    );
-  }
+  // Unknown slug — the shared 404 page.
+  if (!service) return <NotFound />;
 
   const { detail } = service;
   const Icon = iconMap[service.iconName] ?? Rocket;
@@ -89,9 +76,10 @@ export default function ServiceDetail() {
           <div className="mx-auto w-full max-w-6xl px-6 pb-14 md:pb-20">
             <Link
               to="/services"
-              className="mb-6 inline-flex items-center gap-2 text-sm font-medium text-white/80 transition-colors hover:text-white"
+              className="group mb-6 inline-flex items-center gap-2 text-sm font-medium text-white/80 transition-colors hover:text-white"
             >
-              <ArrowLeft className="h-4 w-4" /> All services
+              <ArrowLeft className="h-4 w-4 transition-transform group-hover:-translate-x-1" />
+              <span className="link-underline">All services</span>
             </Link>
             <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-white/15 text-white backdrop-blur-sm">
               <Icon className="h-6 w-6" strokeWidth={1.6} />
@@ -236,10 +224,10 @@ export default function ServiceDetail() {
               <Link
                 to="/"
                 state={{ scrollTo: "contact" }}
-                className="inline-flex items-center gap-2 rounded-full bg-white px-6 py-3 text-sm font-semibold text-neutral-900 transition-colors hover:bg-neutral-200"
+                className="group inline-flex items-center gap-2 rounded-full bg-white px-6 py-3 text-sm font-semibold text-neutral-900 transition-colors hover:bg-neutral-200"
               >
-                Get in touch
-                <ArrowRight className="h-4 w-4" />
+                <RollLabel>Get in touch</RollLabel>
+                <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
               </Link>
             </Magnetic>
           </div>

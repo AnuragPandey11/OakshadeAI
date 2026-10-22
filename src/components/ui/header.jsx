@@ -2,6 +2,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { FluidTabs } from "./original";
+import RollLabel from "./roll-label";
 import {
   FaHome,
   FaCogs,
@@ -88,14 +89,16 @@ export default function Header() {
   const barTransition = { duration: 0.35, ease: [0.22, 1, 0.36, 1] };
   const pillTone = scrolled ? "bg-white/60" : "bg-white/25";
 
-  // On a services / work page, force that nav item active; otherwise defer to
-  // the scrollspy result from the home page.
+  // On a services / work page, force that nav item active; on Home defer to
+  // the scrollspy result; anywhere else (the 404 page) highlight nothing.
   const routeActive = pathname.startsWith("/services")
     ? "services"
     : pathname.startsWith("/work")
     ? "work"
     : null;
-  const active = routeActive ?? scrollActive;
+  // ("" rather than null: FluidTabs treats null as uncontrolled and would fall
+  // back to its own default tab.)
+  const active = routeActive ?? (pathname === "/" ? scrollActive : "");
 
   // Scroll to a home section — navigating home first if we're on another page.
   // "Our Work" is an exception: it routes to the dedicated /work page instead.
@@ -342,9 +345,9 @@ export default function Header() {
                   setOpen(false);
                   goToSection("contact");
                 }}
-                className="w-full rounded-2xl bg-neutral-900 py-5 text-base font-semibold tracking-tight text-white shadow-lg shadow-black/20 transition-colors hover:bg-neutral-800 active:scale-[0.99]"
+                className="group w-full rounded-2xl bg-neutral-900 py-5 text-base font-semibold tracking-tight text-white shadow-lg shadow-black/20 transition-colors hover:bg-neutral-800 active:scale-[0.99]"
               >
-                Book Free Consultation
+                <RollLabel>Book Free Consultation</RollLabel>
               </button>
             </div>
           </motion.div>

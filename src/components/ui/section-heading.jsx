@@ -4,6 +4,7 @@ import { ArrowRight } from "lucide-react";
 import { cn } from "../../lib/utils";
 import { MaskedText, FadeIn, Eyebrow } from "./reveal";
 import Magnetic from "./magnetic";
+import RollLabel from "./roll-label";
 
 /**
  * SectionHeading — eyebrow + title on the left, an optional CTA button on the
@@ -51,7 +52,7 @@ export default function SectionHeading({ eyebrow, title, ctaLabel, ctaTo, align 
                   : "bg-neutral-900 text-white hover:bg-neutral-700"
               )}
             >
-              {ctaLabel}
+              <RollLabel>{ctaLabel}</RollLabel>
               <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
             </Link>
           </Magnetic>

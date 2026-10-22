@@ -84,3 +84,25 @@ body::after {
     cursor: none;
   }
 }
+
+/* ─────────────────────────────────────────────────────────────────────────
+   .link-underline — a 1px underline that draws in from the left on hover and
+   leaves to the right. A background (not text-decoration / border) so it
+   follows the text onto every line of a wrapped link.
+   ───────────────────────────────────────────────────────────────────────── */
+@layer components {
+  .link-underline {
+    background-image: linear-gradient(currentColor, currentColor);
+    background-repeat: no-repeat;
+    background-size: 0% 1px;
+    background-position: 100% 100%;
+    padding-bottom: 2px;
+    transition: background-size 0.45s cubic-bezier(0.76, 0, 0.24, 1);
+  }
+  .link-underline:hover,
+  .link-underline:focus-visible,
+  .group:hover .link-underline {
+    background-size: 100% 1px;
+    background-position: 0% 100%;
+  }
+}
