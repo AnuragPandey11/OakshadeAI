@@ -1,6 +1,6 @@
 // src/components/ui/our-process.jsx
 import { useRef } from "react";
-import { motion, useScroll, useSpring, useTransform } from "framer-motion";
+import { motion } from "framer-motion";
 import { ProductHighlightCard } from "./product-card";
 import Carousel from "./carousel";
 import SectionHeading from "./section-heading";
@@ -39,52 +39,8 @@ const cardVariants = {
   visible: { opacity: 1, y: 0, transition: { duration: 0.7, ease: EASE_OUT } },
 };
 
-// One node on the rail: fills in once scroll progress reaches its step.
-function RailNode({ progress, index, count, step }) {
-  const at = index / (count - 1);
-  const fill = useTransform(progress, [at - 0.04, at], [0, 1]);
-  const label = useTransform(progress, [at - 0.04, at], [0.45, 1]);
-  return (
-    <div
-      className="absolute top-0 flex -translate-x-1/2 flex-col items-center"
-      style={{ left: `${at * 100}%` }}
-    >
-      <span className="relative flex h-3 w-3 items-center justify-center rounded-full border border-neutral-400 bg-neutral-200">
-        <motion.span style={{ scale: fill }} className="h-2 w-2 rounded-full bg-neutral-900" />
-      </span>
-      <motion.span
-        style={{ opacity: label }}
-        className="mt-2 whitespace-nowrap text-[11px] font-semibold uppercase tracking-[0.15em] text-neutral-900"
-      >
-        {String(index + 1).padStart(2, "0")}
-        <span className="hidden lg:inline"> · {step.title}</span>
-      </motion.span>
-    </div>
-  );
-}
-
-// Timeline above the grid; the line draws itself as the cards scroll past.
-function ProcessRail({ progress }) {
-  return (
-    <div className="sticky top-28 z-10 mb-10 hidden rounded-full bg-neutral-200/80 px-10 pb-8 pt-4 backdrop-blur-md sm:block lg:px-16">
-      <div className="relative h-3">
-        <div className="absolute inset-x-0 top-[5px] h-[2px] bg-neutral-300" />
-        <motion.div
-          style={{ scaleX: progress }}
-          className="absolute inset-x-0 top-[5px] h-[2px] origin-left bg-neutral-900"
-        />
-        {processSteps.map((step, i) => (
-          <RailNode key={step.id} progress={progress} index={i} count={processSteps.length} step={step} />
-        ))}
-      </div>
-    </div>
-  );
-}
-
 export default function OurProcess() {
   const gridRef = useRef(null);
-  const { scrollYProgress } = useScroll({ target: gridRef, offset: ["start 75%", "end 70%"] });
-  const progress = useSpring(scrollYProgress, { stiffness: 120, damping: 30 });
 
   return (
     // White fades into the grey over the first 160px, so the section edge
@@ -98,8 +54,7 @@ export default function OurProcess() {
       <div className="mx-auto max-w-6xl px-6 pb-32 pt-20 md:pb-44 md:pt-28">
         <SectionHeading eyebrow="Our Process" title="From first brief to *live* product" align="center" />
 
-        {/* Tablet / desktop: rail + staggered grid */}
-        <ProcessRail progress={progress} />
+        {/* Tablet / desktop: staggered grid */}
         <motion.div
           ref={gridRef}
           variants={gridVariants}
