@@ -7,6 +7,7 @@ import { pageHeroes } from "../utils/heroData";
 import PageHero from "../components/ui/page-hero";
 import { ClipReveal } from "../components/ui/reveal";
 import { Spotlight, trackSpotlight } from "../components/ui/spotlight";
+import BrowserMockup from "../components/ui/browser-mockup";
 
 export default function AllWork() {
   const [category, setCategory] = useState("All");
@@ -62,9 +63,8 @@ export default function AllWork() {
             {filtered.map((project) => (
               <motion.a
                 key={project.id}
-                href={project.link}
-                target="_blank"
-                rel="noopener noreferrer"
+                href={project.link || "#"}
+                {...(project.link ? { target: "_blank", rel: "noopener noreferrer" } : {})}
                 layout
                 initial={{ opacity: 0, scale: 0.96 }}
                 animate={{ opacity: 1, scale: 1 }}
@@ -79,11 +79,23 @@ export default function AllWork() {
                 <Spotlight />
                 <div data-cursor="View" className="relative aspect-[16/10] overflow-hidden rounded-t-2xl">
                   <ClipReveal className="h-full w-full">
-                    <img
-                      src={project.image}
-                      alt={project.title}
-                      className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
-                    />
+                    {project.video ? (
+                      <BrowserMockup
+                        video={project.video}
+                        videoMp4={project.videoMp4}
+                        poster={project.image}
+                        title={project.title}
+                        autoPlay={false}
+                        hoverPlay={true}
+                        className="h-full w-full"
+                      />
+                    ) : (
+                      <img
+                        src={project.image}
+                        alt={project.title}
+                        className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                      />
+                    )}
                   </ClipReveal>
                   <span className="absolute left-3 top-3 rounded-full bg-black/60 px-3 py-1 text-xs font-medium text-white backdrop-blur-sm">
                     {project.category}
@@ -98,15 +110,35 @@ export default function AllWork() {
                   <h3 className="mb-2 text-lg font-bold tracking-tight text-neutral-900">
                     {project.title}
                   </h3>
-                  <p className="mb-2 text-sm leading-relaxed text-neutral-500">
+                  {project.blurb && (
+                    <p className="mb-1.5 text-xs font-semibold text-neutral-800">
+                      {project.blurb}
+                    </p>
+                  )}
+                  <p className="mb-3 text-sm leading-relaxed text-neutral-500">
                     {project.description}
                   </p>
-                  <p className="mb-4 flex-1 text-xs text-neutral-400">
-                    {project.meta ?? project.status ?? ""}
-                  </p>
+                  {project.tags && project.tags.length > 0 ? (
+                    <div className="mb-4 flex flex-1 flex-wrap content-start gap-1.5">
+                      {project.tags.map((t) => (
+                        <span
+                          key={t}
+                          className="inline-flex items-center rounded-md border border-neutral-200 bg-neutral-50 px-2 py-0.5 text-[11px] font-medium text-neutral-600"
+                        >
+                          {t}
+                        </span>
+                      ))}
+                    </div>
+                  ) : (
+                    <p className="mb-4 flex-1 text-xs text-neutral-400">
+                      {project.meta ?? project.status ?? ""}
+                    </p>
+                  )}
                   <span className="inline-flex items-center gap-1.5 text-sm font-semibold text-[var(--color-primary)]">
-                    View project
-                    <ArrowUpRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+                    <span className="link-underline">{project.link ? "View project" : "Enterprise platform"}</span>
+                    {project.link && (
+                      <ArrowUpRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+                    )}
                   </span>
                 </div>
               </motion.a>

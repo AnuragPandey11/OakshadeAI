@@ -17,9 +17,31 @@ export const contactData = {
       "Tell us about your project and we'll get back to you within one business day.",
   },
 
-  // Email is the only contact channel we publish for now. The phone /
-  // WhatsApp cards are kept here (commented out) so they can be switched back
-  // on once those numbers are live — see brandConfig.phone / .whatsapp.
+  // "What happens next": the dark card beside the form. Edit the steps to
+  // match how you actually run first conversations.
+  nextSteps: {
+    eyebrow: "What happens next",
+    steps: [
+      {
+        title: "We reply within a day",
+        body: "Someone from the team reads your message and gets back to you within one business day.",
+      },
+      {
+        title: "A free 30-minute call",
+        body: "We talk through your goals, timeline and budget, and tell you honestly whether we're the right fit.",
+      },
+      {
+        title: "A clear proposal",
+        body: "You get a written plan with scope, milestones and a fixed quote, usually within a week.",
+      },
+    ],
+  },
+
+  // Direct contact channels, listed at the bottom of the "What happens next"
+  // card (lines[0] is the main line, lines[1] the small note under it).
+  // Email is the only channel we publish for now. The phone / WhatsApp
+  // entries are kept here (commented out) so they can be switched back on
+  // once those numbers are live — see brandConfig.phone / .whatsapp.
   infoCards: [
     {
       iconName: "Mail",

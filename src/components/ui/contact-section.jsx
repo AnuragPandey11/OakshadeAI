@@ -8,8 +8,14 @@ import { MapPin, Phone, Mail, Clock, Send, Check } from "lucide-react";
 import { contactData } from "../../utils/contactData";
 import { brandConfig } from "../../utils/brandConfig";
 import { Eyebrow, MaskedText } from "./reveal";
+import RollLabel from "./roll-label";
+import ShaderCanvas from "./shader-canvas";
+import { halftoneShader } from "../../lib/shaders";
 
 const iconMap = { MapPin, Phone, Mail, Clock };
+
+// Faint dot matrix on the neutral-950 "What happens next" card.
+const CARD_DOTS = { u_base: 0.039, u_ink: 0.15, u_cell: 12 };
 
 const fadeUp = {
   hidden: { opacity: 0, y: 30 },
@@ -126,7 +132,7 @@ export default function ContactSection() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
 
-  const { hero, infoCards, form, socialsCard } = contactData;
+  const { hero, infoCards, nextSteps, form, socialsCard } = contactData;
 
   // Hero image parallax: it drifts slower than the page as the hero scrolls.
   const heroRef = useRef(null);
@@ -263,66 +269,7 @@ export default function ContactSection() {
         </div>
       </div>
 
-      {/* ── Info Cards ───────────────────────────────────────────────────── */}
-      <div className="py-16 md:py-20 bg-neutral-100">
-        <div className="container mx-auto px-6 lg:px-16 max-w-7xl">
-          <div
-            className={`grid gap-5 md:gap-6 ${
-              infoCards.length === 1
-                ? "grid-cols-1 mx-auto max-w-md"
-                : "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3"
-            }`}
-          >
-            {infoCards.map((card, i) => {
-              const Icon = iconMap[card.iconName];
-              const isLink = !!card.href;
-              const Wrapper = isLink ? motion.a : motion.div;
-              const wrapperProps = isLink
-                ? {
-                    href: card.href,
-                    target: card.href.startsWith("http") ? "_blank" : undefined,
-                    rel: card.href.startsWith("http")
-                      ? "noopener noreferrer"
-                      : undefined,
-                  }
-                : {};
-
-              return (
-                <Wrapper
-                  key={card.title}
-                  {...wrapperProps}
-                  variants={fadeUp}
-                  initial="hidden"
-                  whileInView="visible"
-                  viewport={{ once: true }}
-                  custom={i}
-                  className={`bg-white p-6 md:p-8 rounded-2xl border border-neutral-200 block transition-all ${
-                    isLink
-                      ? "cursor-pointer hover:shadow-lg hover:-translate-y-1 group"
-                      : "hover:shadow-lg transition-shadow"
-                  }`}
-                >
-                  <div className="w-11 h-11 rounded-xl bg-neutral-100 flex items-center justify-center text-neutral-900 mb-5 transition-colors group-hover:bg-neutral-900 group-hover:text-white">
-                    {Icon && <Icon strokeWidth={1.5} />}
-                  </div>
-                  <h3 className="text-lg font-bold tracking-tight text-neutral-900 mb-3">
-                    {card.title}
-                  </h3>
-                  <div className="space-y-1">
-                    {card.lines.map((line, idx) => (
-                      <p key={idx} className="text-sm text-neutral-500">
-                        {line}
-                      </p>
-                    ))}
-                  </div>
-                </Wrapper>
-              );
-            })}
-          </div>
-        </div>
-      </div>
-
-      {/* ── Form + Socials ───────────────────────────────────────────────── */}
+      {/* ── Form + What happens next ─────────────────────────────────────── */}
       <div className="py-20 md:py-28">
         <div className="container mx-auto px-6 lg:px-16 max-w-7xl">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-20">
@@ -464,14 +411,14 @@ export default function ContactSection() {
                     layoutId="contact-submit"
                     style={{ borderRadius: 12 }}
                     disabled={isSubmitting}
-                    className="inline-flex items-center gap-3 bg-neutral-900 text-white px-8 py-4 font-bold uppercase text-xs tracking-[0.2em] hover:bg-neutral-700 transition-colors disabled:opacity-50 cursor-pointer"
+                    className="group inline-flex items-center gap-3 bg-neutral-900 text-white px-8 py-4 font-bold uppercase text-xs tracking-[0.2em] hover:bg-neutral-700 transition-colors disabled:opacity-50 cursor-pointer"
                   >
                     {isSubmitting ? (
                       "Sending..."
                     ) : (
                       <>
-                        {form.submitLabel}
-                        <Send size={14} />
+                        <RollLabel>{form.submitLabel}</RollLabel>
+                        <Send size={14} className="transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
                       </>
                     )}
                   </motion.button>
@@ -479,40 +426,70 @@ export default function ContactSection() {
               )}
             </motion.div>
 
-            {/* Sidebar */}
-            <motion.div
+            {/* Sidebar — one dark card: what happens after you write, then
+                the direct channels (infoCards). It replaces the old logo,
+                "Prefer email?" and info cards, which showed the email
+                address three times. Sticks beside the form on desktop. */}
+            <motion.aside
               variants={fadeUp}
               initial="hidden"
               whileInView="visible"
               viewport={{ once: true }}
               custom={1}
-              className="lg:col-span-5 space-y-8"
+              className="lg:col-span-5"
             >
-              {/* Brand logo — occupies the same space the map card did */}
-              <div className="relative aspect-[4/3] rounded-2xl overflow-hidden bg-neutral-100 border border-neutral-200 flex items-center justify-center p-3">
-                <img
-                  src="/media/oakshade-logo.png"
-                  alt={brandConfig.name}
-                  className="h-full w-full object-contain scale-110"
-                />
-              </div>
+              <div className="relative overflow-hidden rounded-3xl bg-neutral-950 p-8 text-white md:p-10 lg:sticky lg:top-28">
+                <ShaderCanvas fragment={halftoneShader} uniforms={CARD_DOTS} />
+                <div className="relative">
+                  <Eyebrow className="mb-8 text-xs tracking-[0.25em] text-neutral-500">
+                    {nextSteps.eyebrow}
+                  </Eyebrow>
 
-              {/* Email card — the only contact channel we publish for now */}
-              <div className="bg-neutral-100 p-6 md:p-8 rounded-2xl border border-neutral-200">
-                <h3 className="font-bold tracking-tight text-lg text-neutral-900 mb-4">
-                  Prefer email?
-                </h3>
-                <p className="text-sm text-neutral-500 mb-6">
-                  Write to us directly and we'll get back to you within one business
-                  day.
-                </p>
-                <a
-                  href={`mailto:${brandConfig.email}`}
-                  className="inline-flex items-center gap-2 px-5 py-3 rounded-xl bg-white border border-neutral-200 text-sm font-medium text-neutral-600 hover:border-neutral-900 hover:text-neutral-900 transition-colors"
-                >
-                  <Mail size={18} />
-                  {brandConfig.email}
-                </a>
+                  <ol className="space-y-7">
+                    {nextSteps.steps.map((step, i) => (
+                      <li key={step.title} className="flex gap-5">
+                        <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-white/15 text-xs font-semibold tabular-nums text-white/70">
+                          {String(i + 1).padStart(2, "0")}
+                        </span>
+                        <div>
+                          <h3 className="font-semibold tracking-tight text-white">{step.title}</h3>
+                          <p className="mt-1 text-sm leading-relaxed text-neutral-400">{step.body}</p>
+                        </div>
+                      </li>
+                    ))}
+                  </ol>
+
+                  <div className="mt-10 space-y-5 border-t border-white/10 pt-8">
+                    {infoCards.map((card) => {
+                      const Icon = iconMap[card.iconName];
+                      const external = card.href?.startsWith("http");
+                      return (
+                        <a
+                          key={card.title}
+                          href={card.href}
+                          target={external ? "_blank" : undefined}
+                          rel={external ? "noopener noreferrer" : undefined}
+                          className="group flex items-start gap-4"
+                        >
+                          <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white/10 text-white transition-colors group-hover:bg-white group-hover:text-neutral-900">
+                            {Icon && <Icon size={18} strokeWidth={1.5} />}
+                          </span>
+                          <span className="min-w-0">
+                            <span className="block text-[11px] font-semibold uppercase tracking-wider text-neutral-500">
+                              {card.title}
+                            </span>
+                            <span className="link-underline text-sm text-white [overflow-wrap:anywhere] sm:text-base">
+                              {card.lines[0]}
+                            </span>
+                            {card.lines[1] && (
+                              <span className="mt-1 block text-xs text-neutral-500">{card.lines[1]}</span>
+                            )}
+                          </span>
+                        </a>
+                      );
+                    })}
+                  </div>
+                </div>
               </div>
 
               {/* Socials card — hidden until the accounts exist. Re-enable by
@@ -546,7 +523,7 @@ export default function ContactSection() {
                 </div>
               </div>
               */}
-            </motion.div>
+            </motion.aside>
           </div>
         </div>
       </div>

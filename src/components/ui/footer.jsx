@@ -8,6 +8,7 @@ import { brandConfig } from "../../utils/brandConfig";
 import { services } from "../../utils/servicesData";
 import ShaderCanvas from "./shader-canvas";
 import Magnetic from "./magnetic";
+import RollLabel from "./roll-label";
 import { EASE_OUT } from "./reveal";
 import { motion } from "framer-motion";
 import { halftoneShader } from "../../lib/shaders";
@@ -37,7 +38,7 @@ function ColumnHeading({ children }) {
 }
 
 const linkClass =
-  "text-sm text-neutral-400 transition-colors hover:text-white";
+  "link-underline text-sm text-neutral-400 transition-colors hover:text-white";
 
 export default function Footer() {
   return (
@@ -137,7 +138,7 @@ export default function Footer() {
                 state={{ scrollTo: "contact" }}
                 className="group inline-flex items-center gap-2 rounded-full bg-white px-5 py-2.5 text-sm font-semibold text-neutral-900 transition-colors hover:bg-neutral-200"
               >
-                Start a project
+                <RollLabel>Start a project</RollLabel>
                 <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
               </Link>
             </Magnetic>
@@ -150,16 +151,16 @@ export default function Footer() {
             © {new Date().getFullYear()} {brandConfig.name}. All rights reserved.
           </span>
           <div className="flex gap-6">
-            <Link to="/services" className="transition-colors hover:text-white">
+            <Link to="/services" className="link-underline transition-colors hover:text-white">
               Services
             </Link>
-            <Link to="/work" className="transition-colors hover:text-white">
+            <Link to="/work" className="link-underline transition-colors hover:text-white">
               Work
             </Link>
             <Link
               to="/"
               state={{ scrollTo: "contact" }}
-              className="transition-colors hover:text-white"
+              className="link-underline transition-colors hover:text-white"
             >
               Contact
             </Link>

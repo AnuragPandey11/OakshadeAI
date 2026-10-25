@@ -65,7 +65,7 @@ export default function AllServices() {
                   </p>
 
                   <span className="relative inline-flex items-center gap-2 text-sm font-semibold text-[var(--color-primary)]">
-                    Learn more
+                    <span className="link-underline">Learn more</span>
                     <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
                   </span>
                 </Link>

@@ -33,10 +33,22 @@ export const projectGroups = [
         category: "Real Estate",
         description:
           "An immersive virtual walkthrough of a residential township — 360° panoramic views and interactive scene exploration that let buyers tour the development before a brick is laid.",
-        image:
-          "https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?q=80&w=1600&auto=format&fit=crop",
+        image: "/media/platinum-poster.jpg",
+        video: "/Platinum.mov",
+        videoMp4: "/media/platinum-preview.mp4",
         link: "https://platinum-township.vercel.app/",
-        status: DEV_STATUS,
+      },
+      {
+        id: "solar-portfolio-cms",
+        title: "Solar Portfolio CMS",
+        category: "SaaS Platform",
+        blurb:
+          "Plant-portfolio CMS for a solar automation company, fed live by the devices inside each power plant.",
+        description:
+          "Redis holds the live state the dashboard reads from, so it never has to query history to show what a plant is doing right now, while every reading is also persisted to PostgreSQL for later retrieval. A React front end puts the whole portfolio — 50+ plants — in one place.",
+        image: "/media/solar-cms-poster.jpg",
+        video: "/cms-video.mp4",
+        videoMp4: "/cms-video.mp4",
       },
       {
         id: "oakshade-crm",
@@ -44,30 +56,22 @@ export const projectGroups = [
         category: "SaaS Platform",
         description:
           "Our own customer relationship platform — leads, pipelines, and client conversations in one place, built to keep growing teams organised without the enterprise bloat.",
-        image:
-          "https://images.unsplash.com/photo-1551288049-bebda4e38f71?q=80&w=1600&auto=format&fit=crop",
+        image: "/media/crm-poster.jpg",
+        video: "/CRM.mov",
+        videoMp4: "/media/crm-preview.mp4",
         link: "https://crm.oakshade-ai.com/",
       },
       {
-        id: "the-jagirdars",
-        title: "The Jagirdars",
-        category: "Travel & Hospitality",
+        id: "kayo-physio",
+        title: "Kayo Physio",
+        category: "Web & Mobile App",
         description:
-          "A holistic yatra ecosystem for a collection of heritage homestays in Uttarakhand — curated properties and yatra services presented as one unhurried, premium experience.",
-        image:
-          "https://images.unsplash.com/photo-1626621341517-bbf3d9990a23?q=80&w=1600&auto=format&fit=crop",
-        link: "https://the-jagirdars.vercel.app/",
-        status: DEV_STATUS,
-      },
-      {
-        id: "medhya-design-studio",
-        title: "Medhya Design Studio",
-        category: "Business Website",
-        description:
-          "A portfolio site for a multidisciplinary architecture and interiors practice — residential, commercial, hospitality, and cultural work presented so the projects carry the page.",
-        image:
-          "https://images.unsplash.com/photo-1599696848652-f0ff23bc911f?q=80&w=1600&auto=format&fit=crop",
-        link: "https://medhya-design-studio-five.vercel.app/",
+          "A physiotherapy platform pairing a patient-facing app with a web app for clinics — bookings, guided exercise plans, and progress tracking between sessions.",
+        meta: "Mobile app + web app",
+        image: "/media/kayo-poster.jpg",
+        video: "/kayo-video.mp4",
+        videoMp4: "/kayo-video.mp4",
+        link: "https://kayo-physio.vercel.app/",
         status: DEV_STATUS,
       },
     ],
@@ -77,14 +81,29 @@ export const projectGroups = [
     label: "Web & Mobile",
     entries: [
       {
-        id: "complete-waterproofing",
-        title: "Complete Waterproofing Systems",
+        id: "kayo-physio",
+        title: "Kayo Physio",
+        category: "Web & Mobile App",
+        description:
+          "A physiotherapy platform pairing a patient-facing app with a web app for clinics — bookings, guided exercise plans, and progress tracking between sessions.",
+        meta: "Mobile app + web app",
+        image: "/media/kayo-poster.jpg",
+        video: "/kayo-video.mp4",
+        videoMp4: "/kayo-video.mp4",
+        link: "https://kayo-physio.vercel.app/",
+        status: DEV_STATUS,
+      },
+      {
+        id: "medhya-design-studio",
+        title: "Medhya Design Studio",
         category: "Business Website",
         description:
-          "A clear, credibility-first website for a waterproofing contractor — services, past projects, and enquiries structured so prospective clients can get in touch in a couple of taps.",
-        image:
-          "https://images.unsplash.com/photo-1503387762-592deb58ef4e?q=80&w=1600&auto=format&fit=crop",
-        link: "https://completewaterproofingsystems.in/",
+          "A portfolio site for a multidisciplinary architecture and interiors practice — residential, commercial, hospitality, and cultural work presented so the projects carry the page.",
+        image: "/media/medhya-poster.jpg",
+        video: "/Medhya.mov",
+        videoMp4: "/media/medhya-preview.mp4",
+        link: "https://medhya-design-studio-five.vercel.app/",
+        status: DEV_STATUS,
       },
       {
         id: "sehatbuddy",
@@ -98,16 +117,14 @@ export const projectGroups = [
         link: "https://www.sehatbuddy.in/",
       },
       {
-        id: "kayo-physio",
-        title: "Kayo Physio",
-        category: "Web & Mobile App",
+        id: "complete-waterproofing",
+        title: "Complete Waterproofing Systems",
+        category: "Business Website",
         description:
-          "A physiotherapy platform pairing a patient-facing app with a web app for clinics — bookings, guided exercise plans, and progress tracking between sessions.",
-        meta: "Mobile app + web app",
+          "A clear, credibility-first website for a waterproofing contractor — services, past projects, and enquiries structured so prospective clients can get in touch in a couple of taps.",
         image:
-          "https://images.unsplash.com/photo-1649751361457-01d3a696c7e6?q=80&w=1600&auto=format&fit=crop",
-        link: "https://kayo-physio.vercel.app/",
-        status: DEV_STATUS,
+          "https://images.unsplash.com/photo-1503387762-592deb58ef4e?q=80&w=1600&auto=format&fit=crop",
+        link: "https://completewaterproofingsystems.in/",
       },
     ],
   },
@@ -116,14 +133,50 @@ export const projectGroups = [
     label: "Travel & Hospitality",
     entries: [
       {
+        id: "real-jungle-project",
+        title: "The Real Jungle Project",
+        category: "Travel & Hospitality",
+        description:
+          "A site for an eco-tourism retreat, leaning on immersive photography and an unhurried layout to sell the experience of the place itself.",
+        image: "/media/jungle-poster.jpg",
+        video: "/Jungle.mov",
+        videoMp4: "/media/jungle-preview.mp4",
+        link: "https://the-real-jungle-project.vercel.app/",
+        status: DEV_STATUS,
+      },
+      {
         id: "qintara-living",
         title: "Qintara Living",
         category: "Travel & Hospitality",
         description:
           "A hospitality brand site for a premium stay experience — rooms, amenities, and enquiries presented with the polish guests expect before they book.",
-        image:
-          "https://images.unsplash.com/photo-1566073771259-6a8506099945?q=80&w=1600&auto=format&fit=crop",
+        image: "/media/qintara-poster.jpg",
+        video: "/Qintara.mov",
+        videoMp4: "/media/qintara-preview.mp4",
         link: "https://www.qintaraliving.com/",
+      },
+      {
+        id: "tour-my-holiday",
+        title: "Tour My Holiday",
+        category: "Travel & Hospitality",
+        description:
+          "A holiday planning experience built around discovery — curated trips and destination pages that guide visitors from browsing to a booking enquiry.",
+        image: "/media/tmh-poster.jpg",
+        video: "/tmh-video.mp4",
+        videoMp4: "/tmh-video.mp4",
+        link: "https://tourmyholiday.netlify.app/",
+      },
+      {
+        id: "the-jagirdars",
+        title: "The Jagirdars",
+        category: "Travel & Hospitality",
+        description:
+          "A holistic yatra ecosystem for a collection of heritage homestays in Uttarakhand — curated properties and yatra services presented as one unhurried, premium experience.",
+        image: "/media/jagirdars-poster.jpg",
+        video: "/Jagirdars.mov",
+        videoMp4: "/media/jagirdars-preview.mp4",
+        link: "https://the-jagirdars.vercel.app/",
+        status: DEV_STATUS,
       },
       {
         id: "aum-tourism",
@@ -135,33 +188,21 @@ export const projectGroups = [
           "https://images.unsplash.com/photo-1488646953014-85cb44e25828?q=80&w=1600&auto=format&fit=crop",
         link: "https://aumtourism.in/",
       },
-      {
-        id: "tour-my-holiday",
-        title: "Tour My Holiday",
-        category: "Travel & Hospitality",
-        description:
-          "A holiday planning experience built around discovery — curated trips and destination pages that guide visitors from browsing to a booking enquiry.",
-        image:
-          "https://images.unsplash.com/photo-1524661135-423995f22d0b?q=80&w=1600&auto=format&fit=crop",
-        link: "https://tourmyholiday.netlify.app/",
-      },
-      {
-        id: "real-jungle-project",
-        title: "The Real Jungle Project",
-        category: "Travel & Hospitality",
-        description:
-          "A site for an eco-tourism retreat, leaning on immersive photography and an unhurried layout to sell the experience of the place itself.",
-        image:
-          "https://images.unsplash.com/photo-1441974231531-c6227db76b6e?q=80&w=1600&auto=format&fit=crop",
-        link: "https://the-real-jungle-project.vercel.app/",
-        status: DEV_STATUS,
-      },
     ],
   },
 ];
 
-// Flattened list of every project (used by the /work page grid).
-export const allProjects = projectGroups.flatMap((group) => group.entries);
+// Flattened list of every unique project (used by the /work page grid).
+export const allProjects = (() => {
+  const seenIds = new Set();
+  return projectGroups
+    .flatMap((group) => group.entries)
+    .filter((project) => {
+      if (seenIds.has(project.id)) return false;
+      seenIds.add(project.id);
+      return true;
+    });
+})();
 
 // Unique category list for the /work filter, with "All" first.
 export const projectCategories = [

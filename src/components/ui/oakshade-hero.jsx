@@ -4,6 +4,7 @@ import { ArrowRight } from "lucide-react";
 import { motion, useReducedMotion, useScroll, useTransform } from "framer-motion";
 import ShaderCanvas from "./shader-canvas";
 import Magnetic from "./magnetic";
+import RollLabel from "./roll-label";
 import { MaskedText, FadeIn, EASE_OUT } from "./reveal";
 import { smokeShader } from "../../lib/shaders";
 import { INTRO_HERO_DELAY, introPending } from "../../lib/intro";
@@ -13,9 +14,12 @@ import { homeHero } from "../../utils/heroData";
 // Feather the video's rectangular edges so it melts into the section
 // background instead of showing a hard box. Horizontal + vertical gradients
 // composited together fade all four edges.
+// Each edge stays fully transparent for its first 2%: starting the fade at
+// exactly 0% let the video's outermost pixel column leak through as a 1px
+// hairline once the box is scaled (lg:scale-[1.12]).
 const FEATHER =
-  "linear-gradient(to right, transparent 0%, #000 10%, #000 90%, transparent 100%), " +
-  "linear-gradient(to bottom, transparent 0%, #000 11%, #000 89%, transparent 100%)";
+  "linear-gradient(to right, transparent 0%, transparent 2%, #000 12%, #000 88%, transparent 98%), " +
+  "linear-gradient(to bottom, transparent 0%, transparent 2%, #000 13%, #000 87%, transparent 98%)";
 
 const featherStyle = {
   WebkitMaskImage: FEATHER,
@@ -62,7 +66,7 @@ export function OakshadeHero() {
             wide screens without narrowing the centered mobile layout. */}
         <motion.div
           style={reduce ? undefined : { y: textY, opacity: fade }}
-          className="order-2 w-full text-center lg:order-1 lg:w-[40%] lg:pl-10 lg:text-left xl:pl-16"
+          className="order-2 w-full text-center lg:order-1 lg:w-[48%] lg:pl-10 lg:text-left xl:pl-16"
         >
           <FadeIn
             as="p"
@@ -98,7 +102,7 @@ export function OakshadeHero() {
                 onClick={() => scrollToSection(homeHero.primaryCta.target)}
                 className="group inline-flex items-center gap-2 rounded-full bg-neutral-900 px-7 py-3.5 text-sm font-semibold text-white shadow-lg shadow-black/10 transition-colors hover:bg-neutral-700"
               >
-                {homeHero.primaryCta.label}
+                <RollLabel>{homeHero.primaryCta.label}</RollLabel>
                 <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
               </button>
             </Magnetic>
@@ -106,9 +110,9 @@ export function OakshadeHero() {
               <button
                 type="button"
                 onClick={() => scrollToSection(homeHero.secondaryCta.target)}
-                className="inline-flex items-center rounded-full border border-neutral-900/15 bg-white/40 px-7 py-3.5 text-sm font-semibold text-neutral-900 backdrop-blur-sm transition-colors hover:bg-white/70"
+                className="group inline-flex items-center rounded-full border border-neutral-900/15 bg-white/40 px-7 py-3.5 text-sm font-semibold text-neutral-900 backdrop-blur-sm transition-colors hover:bg-white/70"
               >
-                {homeHero.secondaryCta.label}
+                <RollLabel>{homeHero.secondaryCta.label}</RollLabel>
               </button>
             </Magnetic>
           </FadeIn>
@@ -120,7 +124,7 @@ export function OakshadeHero() {
             each get their own wrapper and the scaled box stays transform-free. */}
         <motion.div
           style={reduce ? undefined : { y: videoY, scale: videoScale, opacity: fade }}
-          className="order-1 flex w-full justify-center lg:order-2 lg:w-[60%]"
+          className="order-1 flex w-full justify-center lg:order-2 lg:w-[52%]"
         >
           <motion.div
             initial={{ opacity: 0, scale: 0.94 }}
@@ -128,7 +132,10 @@ export function OakshadeHero() {
             transition={{ duration: 1.4, ease: EASE_OUT, delay: wait }}
             className="w-full"
           >
-            <div className="relative aspect-[4/3] w-full overflow-hidden lg:scale-[1.12]">
+            {/* No overflow-hidden here: the video already fits the box
+                (object-cover), and clipping a scaled layer left a 1px
+                compositing seam along its left edge. */}
+            <div className="relative aspect-[4/3] w-full lg:scale-[1.12]">
               <video
                 className="absolute inset-0 h-full w-full object-cover object-center"
                 style={featherStyle}

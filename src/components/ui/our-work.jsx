@@ -5,35 +5,64 @@ import { ArrowUpRight, ChevronLeft, ChevronRight } from "lucide-react";
 import { AnimatedTabs } from "./animated-tabs";
 import SectionHeading from "./section-heading";
 import ShaderImage from "./shader-image";
+import BrowserMockup from "./browser-mockup";
+import RollLabel from "./roll-label";
 import { ClipReveal } from "./reveal";
 import { projectGroups } from "../../utils/projectsData";
 
 // Text half of a project entry (the image is rendered by ProjectSlider so it
 // can persist across entries and wipe between them).
-function ProjectText({ title, description, link, category, status, meta }) {
+function ProjectText({ title, description, link, category, status, meta, blurb, tags }) {
   return (
     <div className="flex h-full flex-col justify-center gap-3">
-      {category && (
-        <span className="text-xs font-semibold uppercase tracking-[0.2em] text-white/50">
-          {category}
-        </span>
-      )}
+      <div className="flex flex-wrap items-center gap-2">
+        {category && (
+          <span className="text-xs font-semibold uppercase tracking-[0.2em] text-white/50">
+            {category}
+          </span>
+        )}
+        {status && (
+          <span className="inline-flex w-fit items-center rounded-full border border-white/20 bg-white/10 px-2.5 py-0.5 text-xs font-medium text-white/70">
+            {status}
+          </span>
+        )}
+      </div>
       <h3 className="text-2xl font-bold tracking-tight text-white">{title}</h3>
-      {status && (
-        <span className="inline-flex w-fit items-center rounded-full border border-white/20 bg-white/10 px-3 py-1 text-xs font-medium text-white/70">
-          {status}
-        </span>
+      {blurb && (
+        <p className="text-sm font-medium text-white/90">
+          {blurb}
+        </p>
       )}
       <p className="text-sm leading-relaxed text-gray-300">{description}</p>
-      {meta && <p className="text-xs text-white/50">{meta}</p>}
-      <a
-        href={link}
-        target="_blank"
-        rel="noopener noreferrer"
-        className="mt-2 inline-flex w-fit items-center gap-2 rounded-full bg-white px-5 py-2.5 text-sm font-semibold text-black transition-colors hover:bg-neutral-200"
-      >
-        Visit Project <ArrowUpRight className="h-4 w-4" />
-      </a>
+      {tags && tags.length > 0 ? (
+        <div className="flex flex-wrap gap-1.5 pt-0.5">
+          {tags.map((t) => (
+            <span
+              key={t}
+              className="inline-flex items-center rounded-md border border-white/10 bg-white/5 px-2.5 py-1 text-xs font-medium text-white/75"
+            >
+              {t}
+            </span>
+          ))}
+        </div>
+      ) : (
+        meta && <p className="text-xs text-white/50">{meta}</p>
+      )}
+      {link ? (
+        <a
+          href={link}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="group mt-2 inline-flex w-fit items-center gap-2 rounded-full bg-white px-5 py-2.5 text-sm font-semibold text-black transition-colors hover:bg-neutral-200"
+        >
+          <RollLabel>Visit Project</RollLabel>
+          <ArrowUpRight className="h-4 w-4 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
+        </a>
+      ) : (
+        <span className="mt-2 inline-flex w-fit items-center gap-2 rounded-full border border-white/15 bg-white/5 px-4 py-2 text-xs font-medium text-white/70">
+          Enterprise Fleet CMS
+        </span>
+      )}
     </div>
   );
 }
@@ -61,19 +90,41 @@ function ProjectSlider({ entries }) {
           {/* The image opens the project too (same link as "Visit Project");
               hovering it shows the "View" cursor. */}
           <a
-            href={current.link}
-            target="_blank"
-            rel="noopener noreferrer"
+            href={current.link || undefined}
+            target={current.link ? "_blank" : undefined}
+            rel={current.link ? "noopener noreferrer" : undefined}
             data-cursor="View"
-            aria-label={`Visit ${current.title}`}
-            className="block h-full w-full"
+            aria-label={current.link ? `Visit ${current.title}` : current.title}
+            className="relative block h-full w-full overflow-hidden rounded-lg shadow-[0_0_20px_rgba(0,0,0,0.2)]"
           >
             <ShaderImage
               src={current.image}
               alt={current.title}
               direction={dir}
-              className="h-full w-full rounded-lg shadow-[0_0_20px_rgba(0,0,0,0.2)]"
+              className="h-full w-full"
             />
+            <AnimatePresence mode="wait">
+              {current.video && (
+                <motion.div
+                  key={`video-${current.id}`}
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.35, ease: "easeInOut" }}
+                  className="absolute inset-0 h-full w-full overflow-hidden rounded-lg"
+                >
+                  <BrowserMockup
+                    video={current.video}
+                    videoMp4={current.videoMp4}
+                    poster={current.image}
+                    title={current.title}
+                    autoPlay={true}
+                    hoverPlay={false}
+                    className="h-full w-full"
+                  />
+                </motion.div>
+              )}
+            </AnimatePresence>
           </a>
         </ClipReveal>
         <div className="relative">

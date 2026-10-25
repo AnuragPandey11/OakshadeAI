@@ -17,6 +17,15 @@ export const homeHero = {
   secondaryCta: { label: "See our work", target: "work" },
 };
 
+// The 404 page (unknown URLs and unknown /services/:slug).
+export const notFoundHero = {
+  eyebrow: "Error 404",
+  headline: "This page took a *wrong turn*.",
+  body: "The link may be old, or the page may have moved. Everything we do is one click away.",
+  primaryCta: { label: "Back to home", to: "/" },
+  secondaryCta: { label: "See our work", to: "/work" },
+};
+
 export const pageHeroes = {
   services: {
     eyebrow: "What we do",
