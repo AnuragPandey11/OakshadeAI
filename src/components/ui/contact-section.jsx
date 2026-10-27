@@ -1,7 +1,7 @@
 // src/components/ui/contact-section.jsx
 import { useRef, useState } from "react";
 import { motion, useReducedMotion, useScroll, useTransform } from "framer-motion";
-import { MapPin, Phone, Mail, Clock, Send, Check } from "lucide-react";
+import { MapPin, Phone, Mail, Clock, Send, Check, Calendar as CalendarIcon } from "lucide-react";
 // Socials + WhatsApp are not rendered for now — re-add this import when the
 // socials card / WhatsApp info card below are switched back on.
 // import { FaWhatsapp, FaInstagram, FaFacebookF } from "react-icons/fa";
@@ -11,6 +11,8 @@ import { Eyebrow, MaskedText } from "./reveal";
 import RollLabel from "./roll-label";
 import ShaderCanvas from "./shader-canvas";
 import { halftoneShader } from "../../lib/shaders";
+import BookingCalendar from "./booking-calendar";
+import { bookingData } from "../../utils/bookingData";
 
 const iconMap = { MapPin, Phone, Mail, Clock };
 
@@ -131,6 +133,8 @@ export default function ContactSection() {
   const [serverError, setServerError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
+  // Toggle between interactive booking calendar ("book") and direct message form ("message")
+  const [contactMode, setContactMode] = useState("book");
 
   const { hero, infoCards, nextSteps, form, socialsCard } = contactData;
 
@@ -178,18 +182,45 @@ export default function ContactSection() {
       document.getElementById(FIELD_ORDER.find((k) => errs[k]))?.focus();
       return;
     }
-    // The site has no backend, so we hand the message to the visitor's own
-    // email client with everything pre-filled. They press send there.
+    // Send message directly to oakshade.business@gmail.com
     setIsSubmitting(true);
     try {
-      openMailClient(formState);
+      if (bookingData.web3formsKey) {
+        const response = await fetch("https://api.web3forms.com/submit", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Accept: "application/json",
+          },
+          body: JSON.stringify({
+            access_key: bookingData.web3formsKey,
+            subject: form.mailSubject.replace("{name}", formState.name.trim()),
+            from_name: "Oakshade AI Contact Form",
+            name: formState.name.trim(),
+            email: formState.email.trim(),
+            phone: formState.phone.trim() || "Not provided",
+            message: formState.message.trim(),
+          }),
+        });
+        const data = await response.json();
+        if (!data.success) {
+          throw new Error(data.message || "Failed to send message");
+        }
+      } else {
+        openMailClient(formState);
+      }
       setIsSubmitted(true);
-      // The values are kept (not cleared) so the mailto can be re-opened if
-      // the email app didn't launch — see the fallback in the success panel.
       setTouched({});
       setFieldErrors({});
     } catch {
-      setServerError(form.networkError);
+      try {
+        openMailClient(formState);
+        setIsSubmitted(true);
+        setTouched({});
+        setFieldErrors({});
+      } catch {
+        setServerError(form.networkError);
+      }
     } finally {
       setIsSubmitting(false);
     }
@@ -269,21 +300,91 @@ export default function ContactSection() {
         </div>
       </div>
 
-      {/* ── Form + What happens next ─────────────────────────────────────── */}
+      {/* ── Mode Switcher & Content ─────────────────────────────────────── */}
       <div className="py-20 md:py-28">
         <div className="container mx-auto px-6 lg:px-16 max-w-7xl">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-20">
-            {/* Form */}
+          {/* Centered Segmented Control */}
+          <div className="flex flex-col items-center mb-14 text-center">
+            <Eyebrow className="text-xs uppercase tracking-[0.25em] text-neutral-400 mb-3">
+              Get Started
+            </Eyebrow>
+            <MaskedText
+              as="h2"
+              text="How would you like to *connect*?"
+              className="text-3xl sm:text-4xl font-bold tracking-tight text-neutral-900 mb-6"
+            />
+            <div className="inline-flex p-1.5 rounded-2xl bg-neutral-100 border border-neutral-200/80 shadow-inner">
+              <button
+                type="button"
+                onClick={() => setContactMode("book")}
+                className={`flex items-center gap-2.5 px-6 py-3 rounded-xl text-xs font-bold uppercase tracking-wider transition-all duration-200 cursor-pointer ${
+                  contactMode === "book"
+                    ? "bg-neutral-900 text-white shadow-md shadow-neutral-900/10"
+                    : "text-neutral-500 hover:text-neutral-900"
+                }`}
+              >
+                <CalendarIcon size={16} />
+                <span>Book a 30-Min Call</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setContactMode("message")}
+                className={`flex items-center gap-2.5 px-6 py-3 rounded-xl text-xs font-bold uppercase tracking-wider transition-all duration-200 cursor-pointer ${
+                  contactMode === "message"
+                    ? "bg-neutral-900 text-white shadow-md shadow-neutral-900/10"
+                    : "text-neutral-500 hover:text-neutral-900"
+                }`}
+              >
+                <Mail size={16} />
+                <span>Send a Message</span>
+              </button>
+            </div>
+          </div>
+
+          {contactMode === "book" ? (
             <motion.div
-              variants={fadeUp}
-              initial="hidden"
-              whileInView="visible"
-              viewport={{ once: true }}
-              className="lg:col-span-7"
+              initial={{ opacity: 0, y: 16 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.35 }}
+              className="w-full"
             >
-              <Eyebrow className="text-sm tracking-[0.2em] text-neutral-400 mb-3">
-                {form.eyebrow}
-              </Eyebrow>
+              <BookingCalendar />
+              <div className="mt-8 text-center text-xs text-neutral-500">
+                Prefer sending us a direct note instead?{" "}
+                <button
+                  type="button"
+                  onClick={() => setContactMode("message")}
+                  className="font-semibold text-neutral-900 underline underline-offset-4 hover:text-neutral-600 cursor-pointer"
+                >
+                  Fill out the message form
+                </button>{" "}
+                or email us at{" "}
+                <a
+                  href={`mailto:${brandConfig.email}`}
+                  className="font-semibold text-neutral-900 underline underline-offset-4 hover:text-neutral-600"
+                >
+                  {brandConfig.email}
+                </a>
+              </div>
+            </motion.div>
+          ) : (
+            <motion.div
+              initial={{ opacity: 0, y: 16 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.35 }}
+              className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-20"
+            >
+              {/* Form */}
+              <motion.div
+                variants={fadeUp}
+                initial="hidden"
+                whileInView="visible"
+                viewport={{ once: true }}
+                className="lg:col-span-7"
+              >
+                <Eyebrow className="text-sm tracking-[0.2em] text-neutral-400 mb-3">
+                  {form.eyebrow}
+                </Eyebrow>
               <MaskedText
                 text={form.heading}
                 delay={0.1}
@@ -524,7 +625,8 @@ export default function ContactSection() {
               </div>
               */}
             </motion.aside>
-          </div>
+          </motion.div>
+        )}
         </div>
       </div>
     </section>
